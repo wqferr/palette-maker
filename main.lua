@@ -2,6 +2,7 @@ local HSV = require "hsv"
 local ColorPicker = require "colorpicker"
 
 local gradientData, gradient
+local pickerCursorImg
 local picker
 
 function love.load()
@@ -15,8 +16,9 @@ function love.load()
         end
     )
     gradient = love.graphics.newImage(gradientData)
+    pickerCursorImg = love.graphics.newImage("img/cursor.png")
 
-    picker = ColorPicker(gradient)
+    picker = ColorPicker(gradient, pickerCursorImg)
 end
 
 function love.draw()
