@@ -1,0 +1,3 @@
+-- TODO create ColorPicker class that allows one to:
+--  set cursor position
+--  get the color of the pixel at the current position
