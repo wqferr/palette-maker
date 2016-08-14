@@ -2,15 +2,25 @@ local HSV = require "hsv"
 local ColorPicker = require "colorpicker"
 local ClickMap = require "clickmap"
 local ModeController = require "modecontroller"
+local ColorContainer = require "colorcontainer"
 
 local gradW, gradH = 200, 30
+local cellW, cellH = 20, 20
+local gridX, gridY = 50, 50
+local gridR, gridC = 15, 15
+local gridSpacing = 7
 
-local rgbPickerIcon
+local selectedCell
+local cellFrame, selectFrame
+
+local rgbPicker, rgbPickerIcon
 local hueGradientData, hueGradient
 local satGradientData, satGradient
 local lightGradientData, lightGradient
 local pickerCursorImg
 local huePicker, satPicker, lightPicker
+
+local cells
 
 function love.load()
     hueGradientData = love.image.newImageData(gradW, gradH)
@@ -28,7 +38,7 @@ function love.load()
         function(x, y, r, g, b, a)
             local l = x / gradW
 
-            return HSV.toRGB(1, 1, l)
+            return HSV.toRGB(0, 0, l)
         end
     )
     lightGradient = love.graphics.newImage(lightGradientData)
@@ -38,12 +48,10 @@ function love.load()
         function(x, y, r, g, b, a)
             local s = x/gradW
 
-            return HSV.toRGB(1, s, 1)
+            return HSV.toRGB(0, s, 1)
         end
     )
     satGradient = love.graphics.newImage(satGradientData)
-
-    pickerCursorImg = love.graphics.newImage("img/cursor.png")
 
     pickerController = ModeController(
         {
@@ -68,6 +76,7 @@ function love.load()
         "normal"
     )
 
+    pickerCursorImg = love.graphics.newImage("img/cursor.png")
     huePicker = ColorPicker(
         hueGradient,
         pickerCursorImg,
@@ -92,7 +101,9 @@ function love.load()
         -pickerCursorImg:getHeight()/8
     )
     satPicker.x, satPicker.y = 500, 250
-    satPicker:setPercent(1)
+    satPicker:setPercent(0)
+
+    clickmap = ClickMap()
 
     local click = function(r, x, y)
         pickerController:setMode("grab", r.picker)
@@ -101,28 +112,82 @@ function love.load()
         pickerController:setMode("normal")
     end
 
-
-    pickerCM = ClickMap()
-    local region = pickerCM:newRegion(
+    local region = clickmap:newRegion(
         "rect",
         click, release,
         huePicker.x, huePicker.y, gradW, gradH
     )
     region.picker = huePicker
 
-    region = pickerCM:newRegion(
+    region = clickmap:newRegion(
         "rect",
         click, release,
         lightPicker.x, lightPicker.y, gradW, gradH
     )
     region.picker = lightPicker
 
-    region = pickerCM:newRegion(
+    region = clickmap:newRegion(
         "rect",
         click, release,
         satPicker.x, satPicker.y, gradW, gradH
     )
     region.picker = satPicker
+
+    rgbPicker = ColorContainer(550, 50, 100, 100, {getRGB()}, "img/rgbFrame.png", true)
+    rgbPickerIcon = love.graphics.newImage("img/rgbPicker.png")
+
+
+    cells = {}
+    cellFrame = love.graphics.newImage("img/cellFrame.png")
+    selectFrame = love.graphics.newImage("img/selection.png")
+    
+    local clickCell = function(region, x, y, mb)
+        if mb == 3 then
+            region.cell:setColor(255, 255, 255)
+            if region.cell == selectedCell then
+                huePicker:setPercent(0)
+                satPicker:setPercent(0)
+                lightPicker:setPercent(1)
+            end
+        else
+            local r, g, b = region.cell:getColor()
+            local h, s, v = HSV.fromRGB(r/255, g/255, b/255)
+            huePicker:setPercent(h / 360)
+            satPicker:setPercent(s)
+            lightPicker:setPercent(v)
+
+            if mb == 1 then
+                selectedCell = cells[region.row][region.col]
+            elseif mb == 2 then
+                selectedCell:setColor(255*r, 255*g, 255*b)
+            end
+        end
+
+        updateGradients()
+    end
+
+    local nop = function() end
+
+    for i = 1, gridR do
+        cells[i] = {}
+
+        for j = 1, gridC do
+            local x, y = gridX + (j-1) * (gridSpacing + cellW),
+                         gridY + (i-1) * (gridSpacing + cellH)
+
+            local c = ColorContainer(
+                x, y, cellW, cellH,
+                {255, 255, 255}, cellFrame
+            )
+            local region = clickmap:newRegion("rect", clickCell, nop, x, y, cellW, cellH)
+            region.cell = c
+            region.row = i
+            region.col = j
+
+            cells[i][j] = c
+        end
+    end
+    selectedCell = cells[1][1]
 end
 
 function love.draw()
@@ -141,21 +206,31 @@ function love.draw()
     satPicker:draw(satPicker.x, satPicker.y)
     love.graphics.print(s, satPicker.x + gradW + 10, satPicker.y + 8)
 
-    love.graphics.setColor(getRGB())
-    love.graphics.rectangle("fill", 500, 100, 50, 50)
-    love.graphics.setColor(255, 255, 255)
+    rgbPicker:draw()
+    --love.graphics.draw(rgbPickerIcon, rgbPicker.x, rgbPicker.y)
 
     local rgb = ("RGB: %d, %d, %d"):format(getRGB())
-    love.graphics.print(rgb, 560, 138)
+    local w = love.graphics.getFont():getWidth(rgb)
+    love.graphics.print(rgb, rgbPicker.x + (rgbPicker.w - w)/2, rgbPicker.y + rgbPicker.h)
+
+    for i, row in ipairs(cells) do
+        for j, cell in ipairs(row) do
+            cell:draw()
+        end
+    end
+
+    if selectedCell then
+        love.graphics.draw(selectFrame, selectedCell.x - 5, selectedCell.y - 5)
+    end
 end
 
 function love.mousepressed(x, y, mb)
-    local r = pickerCM:click(x, y)
+    local r = clickmap:click(x, y, mb)
     pickerController.updateCursor(x - huePicker.x)
 end
 
 function love.mousereleased(x, y, mb)
-    pickerCM:release(x, y)
+    clickmap:release(x, y)
 end
 
 function love.mousemoved(x, y)
@@ -204,4 +279,7 @@ function updateGradients()
 
     lightPicker:setPalette(lightGradient)
     satPicker:setPalette(satGradient)
+
+    rgbPicker:setColor(getRGB())
+    selectedCell:setColor(getRGB())
 end

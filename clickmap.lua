@@ -58,18 +58,18 @@ function ClickMap:check(x, y)
     return region
 end
 
-function ClickMap:click(x, y)
+function ClickMap:click(x, y, button)
     local r = self:check(x, y)
     if r then
         self.clickedRegion = r
-        return r:click(x, y)
+        return r:click(x, y, button)
     end
     return nil
 end
 
-function ClickMap:release(x, y)
+function ClickMap:release(x, y, button)
     if self.clickedRegion then
-        self.clickedRegion:release(x, y)
+        self.clickedRegion:release(x, y, button)
     end
     self.clickedRegion = nil
 end
