@@ -1,5 +1,5 @@
 local HSV = require "hsv"
-local ColorPicker = require "colorpicker"
+local Slider = require "slider"
 local ClickMap = require "clickmap"
 local ModeController = require "modecontroller"
 local ColorContainer = require "colorcontainer"
@@ -77,7 +77,7 @@ function love.load()
     )
 
     pickerCursorImg = love.graphics.newImage("img/cursor.png")
-    huePicker = ColorPicker(
+    huePicker = Slider(
         hueGradient,
         pickerCursorImg,
         -pickerCursorImg:getWidth()/2,
@@ -85,7 +85,7 @@ function love.load()
     )
     huePicker.x, huePicker.y = 500, 200
 
-    lightPicker = ColorPicker(
+    lightPicker = Slider(
         lightGradient,
         pickerCursorImg,
         -pickerCursorImg:getWidth()/2,
@@ -94,7 +94,7 @@ function love.load()
     lightPicker.x, lightPicker.y = 500, 300
     lightPicker:setPercent(1)
 
-    satPicker = ColorPicker(
+    satPicker = Slider(
         satGradient,
         pickerCursorImg,
         -pickerCursorImg:getWidth()/2,
