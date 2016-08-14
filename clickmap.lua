@@ -119,4 +119,13 @@ ClickMap.registerShape(
     }
 )
 
+setmetatable(
+    ClickMap,
+    {
+        __call = function(t, ...)
+            return ClickMap.new(...)
+        end
+    }
+)
+
 return ClickMap
