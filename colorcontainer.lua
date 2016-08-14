@@ -1,3 +1,5 @@
+local HSV = require "hsv"
+
 local ColorContainer = {}
 ColorContainer.__index = ColorContainer
 
@@ -30,8 +32,16 @@ function ColorContainer:getColor()
     return unpack(self.color)
 end
 
+function ColorContainer:getHSV()
+    return HSV.fromRGB(self:getColor())
+end
+
 function ColorContainer:setColor(r, g, b)
     self.color = {r, g, b}
+end
+
+function ColorContainer:setHSV(h, s, v)
+    self.color = {HSV.toRGB(h, s, v)}
 end
 
 function ColorContainer:draw()
