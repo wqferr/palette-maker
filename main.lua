@@ -150,18 +150,15 @@ function love.load()
         if mb == 3 then
             clear(region.cell)
         else
-            local r, g, b = region.cell:getColor()
-            local h, s, v = HSV.fromRGB(r/255, g/255, b/255)
+            local h, s, v = region.cell:getHSV()
             hueSlider:setPercent(h / 360)
             satSlider:setPercent(s)
             valSlider:setPercent(v)
 
             if mb == 1 then
-                selectedCell = cells[region.row][region.col]
-                selectedRow = region.row
-                selectedCol = region.col
+                selectCell(region.row, region.col)
             elseif mb == 2 then
-                selectedCell:setColor(255*r, 255*g, 255*b)
+                selectedCell:setHSV(h, s, v)
             end
         end
 
@@ -200,6 +197,9 @@ function love.load()
     keyListener:register("left", moveSelection)
     keyListener:register("right", moveSelection)
     keyListener:register("backspace", function(...) clear() end)
+    keyListener:register("delete", function(...) clear() end)
+    keyListener:register("+", lighten)
+    keyListener:register("-", darken)
 end
 
 function love.draw()
@@ -219,7 +219,6 @@ function love.draw()
     love.graphics.print(s, satSlider.x + gradW + 10, satSlider.y + 8)
 
     rgbDisplay:draw()
-    --love.graphics.draw(rgbDisplayIcon, rgbDisplay.x, rgbDisplay.y)
 
     local rgb = ("RGB: %d, %d, %d"):format(getRGB())
     local w = love.graphics.getFont():getWidth(rgb)
@@ -301,13 +300,12 @@ function updateGradients()
 end
 
 function updateSliders()
-    local r, g, b = selectedCell:getColor()
-    local h, s, v = HSV.fromRGB(r/255, g/255, b/255)
+    local h, s, v = selectedCell:getHSV()
     hueSlider:setPercent(h/360)
     satSlider:setPercent(s)
     valSlider:setPercent(v)
 
-    rgbDisplay:setColor(r, g, b)
+    rgbDisplay:setHSV(h, s, v)
 end
 
 function clear(cell)
@@ -324,6 +322,10 @@ function selectCell(r, c)
     selectedCol = c
     selectedCell = cells[r][c]
     updateSliders()
+end
+
+function lighten()
+    
 end
 
 moveSelection = {
@@ -360,9 +362,22 @@ setmetatable(
     moveSelection,
     {
         __call = function(t, k)
-            local sr, sc = selectedRow, selectedCol
+            local h, s, v = selectedCell:getHSV()
+
             if moveSelection[k]() then
-                -- TODO different movement modes
+                local setColor = false
+                if love.keyboard.isDown("lshift") then
+                    v = math.min(1, 0.1 + v*1.1)
+                    setColor = true
+                elseif love.keyboard.isDown("lctrl") then
+                    v = math.floor(100 * (v/1.1)) / 100
+                    v = math.max(0, v - 0.1)
+                    setColor = true
+                end
+
+                if setColor then
+                    selectedCell:setHSV(h, s, v)
+                end
             end
         end
     }
