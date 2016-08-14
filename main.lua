@@ -319,35 +319,51 @@ function clear(cell)
     end
 end
 
+function selectCell(r, c)
+    selectedRow = r
+    selectedCol = c
+    selectedCell = cells[r][c]
+    updateSliders()
+end
+
 moveSelection = {
     up = function()
         if selectedRow > 1 then
-            selectedRow = selectedRow - 1
+            selectCell(selectedRow-1, selectedCol)
+            return true
         end
+        return false
     end,
     down = function()
         if selectedRow < gridR then
-            selectedRow = selectedRow + 1
+            selectCell(selectedRow+1, selectedCol)
+            return true
         end
+        return false
     end,
     left = function()
         if selectedCol > 1 then
-            selectedCol = selectedCol - 1
+            selectCell(selectedRow, selectedCol-1)
+            return true
         end
+        return false
     end,
     right = function()
         if selectedCol < gridC then
-            selectedCol = selectedCol + 1
+            selectCell(selectedRow, selectedCol+1)
+            return true
         end
+        return false
     end
 }
 setmetatable(
     moveSelection,
     {
         __call = function(t, k)
-            moveSelection[k]()
-            selectedCell = cells[selectedRow][selectedCol]
-            updateSliders()
+            local sr, sc = selectedRow, selectedCol
+            if moveSelection[k]() then
+                -- TODO different movement modes
+            end
         end
     }
 )
