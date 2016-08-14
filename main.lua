@@ -5,6 +5,7 @@ local ModeController = require "modecontroller"
 
 local gradW, gradH = 200, 30
 
+local rgbPickerIcon
 local hueGradientData, hueGradient
 local satGradientData, satGradient
 local lightGradientData, lightGradient
@@ -12,8 +13,6 @@ local pickerCursorImg
 local huePicker, satPicker, lightPicker
 
 function love.load()
-    pickerCM = ClickMap()
-
     hueGradientData = love.image.newImageData(gradW, gradH)
     hueGradientData:mapPixel(
         function(x, y, r, g, b, a)
@@ -102,6 +101,8 @@ function love.load()
         pickerController:setMode("normal")
     end
 
+
+    pickerCM = ClickMap()
     local region = pickerCM:newRegion(
         "rect",
         click, release,
@@ -125,13 +126,27 @@ function love.load()
 end
 
 function love.draw()
+    local h, s, v = getHSV()
+
+    h = ("H: %d"):format(h)
+    s = ("S: %.2f"):format(s)
+    v = ("V: %.2f"):format(v)
+
     huePicker:draw(huePicker.x, huePicker.y)
-    satPicker:draw(satPicker.x, satPicker.y)
+    love.graphics.print(h, huePicker.x + gradW + 10, huePicker.y + 8)
+
     lightPicker:draw(lightPicker.x, lightPicker.y)
+    love.graphics.print(v, lightPicker.x + gradW + 10, lightPicker.y + 8)
+
+    satPicker:draw(satPicker.x, satPicker.y)
+    love.graphics.print(s, satPicker.x + gradW + 10, satPicker.y + 8)
 
     love.graphics.setColor(getRGB())
     love.graphics.rectangle("fill", 500, 100, 50, 50)
     love.graphics.setColor(255, 255, 255)
+
+    local rgb = ("RGB: %d, %d, %d"):format(getRGB())
+    love.graphics.print(rgb, 560, 138)
 end
 
 function love.mousepressed(x, y, mb)
@@ -152,7 +167,7 @@ end
 
 
 function getHSV()
-    local h = 360 * huePicker:getPercent()
+    local h = (360*huePicker:getPercent()) % 360
     local s = satPicker:getPercent()
     local v = lightPicker:getPercent()
 
@@ -164,20 +179,18 @@ function getRGB()
 end
 
 function updateGradients()
-    local h = (360 * huePicker:getPercent()) % 360
+    local h, s, v = getHSV()
 
     lightGradientData = love.image.newImageData(gradW, gradH)
     lightGradientData:mapPixel(
         function(x, y, r, g, b, a)
             local v = x / gradW
 
-            return HSV.toRGB(h, 1, v)
+            return HSV.toRGB(h, s, v)
         end
     )
     lightGradient = love.graphics.newImage(lightGradientData)
 
-
-    local v = lightPicker:getPercent()
 
     satGradientData = love.image.newImageData(gradW, gradH)
     satGradientData:mapPixel(
