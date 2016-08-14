@@ -15,14 +15,15 @@ local selectedRow, selectedCol
 local selectedCell
 local cellFrame, selectFrame
 
-local rgbPicker, rgbPickerIcon
+local rgbDisplay, rgbDisplayIcon
 local hueGradientData, hueGradient
 local satGradientData, satGradient
-local lightGradientData, lightGradient
-local pickerCursorImg
-local huePicker, satPicker, lightPicker
+local valGradientData, valGradient
+local sliderCursorImg
+local hueSlider, satSlider, valSlider
 
 local keyListener
+local sliderController, cellController
 
 local cells
 
@@ -37,15 +38,15 @@ function love.load()
     )
     hueGradient = love.graphics.newImage(hueGradientData)
 
-    lightGradientData = love.image.newImageData(gradW, gradH)
-    lightGradientData:mapPixel(
+    valGradientData = love.image.newImageData(gradW, gradH)
+    valGradientData:mapPixel(
         function(x, y, r, g, b, a)
             local l = x / gradW
 
             return HSV.toRGB(0, 0, l)
         end
     )
-    lightGradient = love.graphics.newImage(lightGradientData)
+    valGradient = love.graphics.newImage(valGradientData)
 
     satGradientData = love.image.newImageData(gradW, gradH)
     satGradientData:mapPixel(
@@ -57,21 +58,21 @@ function love.load()
     )
     satGradient = love.graphics.newImage(satGradientData)
 
-    pickerController = ModeController(
+    sliderController = ModeController(
         {
             normal = {
                 updateCursor = function() end
             },
             grab = {
                 __enter = function(controller, p)
-                    pickerController.picker = p
+                    sliderController.slider = p
                 end,
                 __exit = function()
-                    pickerController.picker = nil
+                    sliderController.slider = nil
                 end,
                 updateCursor = function(x)
-                    if pickerController.picker then
-                        pickerController.picker:setCursorPos(x, 0)
+                    if sliderController.slider then
+                        sliderController.slider:setCursorPos(x, 0)
                         updateGradients()
                     end
                 end
@@ -80,65 +81,65 @@ function love.load()
         "normal"
     )
 
-    pickerCursorImg = love.graphics.newImage("img/cursor.png")
-    huePicker = Slider(
+    sliderCursorImg = love.graphics.newImage("img/cursor.png")
+    hueSlider = Slider(
         hueGradient,
-        pickerCursorImg,
-        -pickerCursorImg:getWidth()/2,
-        -pickerCursorImg:getHeight()/8
+        sliderCursorImg,
+        -sliderCursorImg:getWidth()/2,
+        -sliderCursorImg:getHeight()/8
     )
-    huePicker.x, huePicker.y = 500, 200
+    hueSlider.x, hueSlider.y = 500, 200
 
-    lightPicker = Slider(
-        lightGradient,
-        pickerCursorImg,
-        -pickerCursorImg:getWidth()/2,
-        -pickerCursorImg:getHeight()/8
+    valSlider = Slider(
+        valGradient,
+        sliderCursorImg,
+        -sliderCursorImg:getWidth()/2,
+        -sliderCursorImg:getHeight()/8
     )
-    lightPicker.x, lightPicker.y = 500, 300
-    lightPicker:setPercent(1)
+    valSlider.x, valSlider.y = 500, 300
+    valSlider:setPercent(1)
 
-    satPicker = Slider(
+    satSlider = Slider(
         satGradient,
-        pickerCursorImg,
-        -pickerCursorImg:getWidth()/2,
-        -pickerCursorImg:getHeight()/8
+        sliderCursorImg,
+        -sliderCursorImg:getWidth()/2,
+        -sliderCursorImg:getHeight()/8
     )
-    satPicker.x, satPicker.y = 500, 250
-    satPicker:setPercent(0)
+    satSlider.x, satSlider.y = 500, 250
+    satSlider:setPercent(0)
 
     clickmap = ClickMap()
 
     local click = function(r, x, y)
-        pickerController:setMode("grab", r.picker)
+        sliderController:setMode("grab", r.slider)
     end
     local release = function(r, x, y)
-        pickerController:setMode("normal")
+        sliderController:setMode("normal")
     end
 
     local region = clickmap:newRegion(
         "rect",
         click, release,
-        huePicker.x, huePicker.y, gradW, gradH
+        hueSlider.x, hueSlider.y, gradW, gradH
     )
-    region.picker = huePicker
+    region.slider = hueSlider
 
     region = clickmap:newRegion(
         "rect",
         click, release,
-        lightPicker.x, lightPicker.y, gradW, gradH
+        valSlider.x, valSlider.y, gradW, gradH
     )
-    region.picker = lightPicker
+    region.slider = valSlider
 
     region = clickmap:newRegion(
         "rect",
         click, release,
-        satPicker.x, satPicker.y, gradW, gradH
+        satSlider.x, satSlider.y, gradW, gradH
     )
-    region.picker = satPicker
+    region.slider = satSlider
 
-    rgbPicker = ColorContainer(550, 50, 100, 100, {getRGB()}, "img/rgbFrame.png", true)
-    rgbPickerIcon = love.graphics.newImage("img/rgbPicker.png")
+    rgbDisplay = ColorContainer(550, 50, 100, 100, {getRGB()}, "img/rgbFrame.png", true)
+    rgbDisplayIcon = love.graphics.newImage("img/rgbDisplay.png")
 
 
     cells = {}
@@ -154,9 +155,9 @@ function love.load()
         else
             local r, g, b = region.cell:getColor()
             local h, s, v = HSV.fromRGB(r/255, g/255, b/255)
-            huePicker:setPercent(h / 360)
-            satPicker:setPercent(s)
-            lightPicker:setPercent(v)
+            hueSlider:setPercent(h / 360)
+            satSlider:setPercent(s)
+            valSlider:setPercent(v)
 
             if mb == 1 then
                 selectedCell = cells[region.row][region.col]
@@ -210,21 +211,21 @@ function love.draw()
     s = ("S: %.2f"):format(s)
     v = ("V: %.2f"):format(v)
 
-    huePicker:draw(huePicker.x, huePicker.y)
-    love.graphics.print(h, huePicker.x + gradW + 10, huePicker.y + 8)
+    hueSlider:draw(hueSlider.x, hueSlider.y)
+    love.graphics.print(h, hueSlider.x + gradW + 10, hueSlider.y + 8)
 
-    lightPicker:draw(lightPicker.x, lightPicker.y)
-    love.graphics.print(v, lightPicker.x + gradW + 10, lightPicker.y + 8)
+    valSlider:draw(valSlider.x, valSlider.y)
+    love.graphics.print(v, valSlider.x + gradW + 10, valSlider.y + 8)
 
-    satPicker:draw(satPicker.x, satPicker.y)
-    love.graphics.print(s, satPicker.x + gradW + 10, satPicker.y + 8)
+    satSlider:draw(satSlider.x, satSlider.y)
+    love.graphics.print(s, satSlider.x + gradW + 10, satSlider.y + 8)
 
-    rgbPicker:draw()
-    --love.graphics.draw(rgbPickerIcon, rgbPicker.x, rgbPicker.y)
+    rgbDisplay:draw()
+    --love.graphics.draw(rgbDisplayIcon, rgbDisplay.x, rgbDisplay.y)
 
     local rgb = ("RGB: %d, %d, %d"):format(getRGB())
     local w = love.graphics.getFont():getWidth(rgb)
-    love.graphics.print(rgb, rgbPicker.x + (rgbPicker.w - w)/2, rgbPicker.y + rgbPicker.h)
+    love.graphics.print(rgb, rgbDisplay.x + (rgbDisplay.w - w)/2, rgbDisplay.y + rgbDisplay.h)
 
     for i, row in ipairs(cells) do
         for j, cell in ipairs(row) do
@@ -239,7 +240,7 @@ end
 
 function love.mousepressed(x, y, mb)
     local r = clickmap:click(x, y, mb)
-    pickerController.updateCursor(x - huePicker.x)
+    sliderController.updateCursor(x - hueSlider.x)
 end
 
 function love.mousereleased(x, y, mb)
@@ -247,9 +248,9 @@ function love.mousereleased(x, y, mb)
 end
 
 function love.mousemoved(x, y)
-    x = x - huePicker.x
+    x = x - hueSlider.x
     x = math.max(0, math.min(x, gradW - 1))
-    pickerController.updateCursor(x)
+    sliderController.updateCursor(x)
 end
 
 function love.keypressed(k)
@@ -259,9 +260,9 @@ end
 
 
 function getHSV()
-    local h = (360*huePicker:getPercent()) % 360
-    local s = satPicker:getPercent()
-    local v = lightPicker:getPercent()
+    local h = (360*hueSlider:getPercent()) % 360
+    local s = satSlider:getPercent()
+    local v = valSlider:getPercent()
 
     return h, s, v
 end
@@ -273,15 +274,15 @@ end
 function updateGradients()
     local h, s, v = getHSV()
 
-    lightGradientData = love.image.newImageData(gradW, gradH)
-    lightGradientData:mapPixel(
+    valGradientData = love.image.newImageData(gradW, gradH)
+    valGradientData:mapPixel(
         function(x, y, r, g, b, a)
             local v = x / gradW
 
             return HSV.toRGB(h, s, v)
         end
     )
-    lightGradient = love.graphics.newImage(lightGradientData)
+    valGradient = love.graphics.newImage(valGradientData)
 
 
     satGradientData = love.image.newImageData(gradW, gradH)
@@ -294,21 +295,23 @@ function updateGradients()
     )
     satGradient = love.graphics.newImage(satGradientData)
 
-    lightPicker:setImage(lightGradient)
-    satPicker:setImage(satGradient)
+    valSlider:setImage(valGradient)
+    satSlider:setImage(satGradient)
 
-    rgbPicker:setColor(getRGB())
+    rgbDisplay:setColor(getRGB())
     selectedCell:setColor(getRGB())
 end
 
 function updateSliders()
     local r, g, b = selectedCell:getColor()
     local h, s, v = HSV.fromRGB(r/255, g/255, b/255)
-    huePicker:setPercent(h/360)
-    satPicker:setPercent(s)
-    lightPicker:setPercent(v)
+    hueSlider:setPercent(h/360)
+    satSlider:setPercent(s)
+    valSlider:setPercent(v)
 
-    rgbPicker:setColor(r, g, b)
+    rgbDisplay:setColor(r, g, b)
+end
+
 end
 
 moveSelection = {
