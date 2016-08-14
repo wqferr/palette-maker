@@ -148,10 +148,7 @@ function love.load()
     
     local clickCell = function(region, x, y, mb)
         if mb == 3 then
-            region.cell:setColor(255, 255, 255)
-            if region.cell == selectedCell then
-                updateSliders()
-            end
+            clear(region.cell)
         else
             local r, g, b = region.cell:getColor()
             local h, s, v = HSV.fromRGB(r/255, g/255, b/255)
@@ -202,6 +199,7 @@ function love.load()
     keyListener:register("down", moveSelection)
     keyListener:register("left", moveSelection)
     keyListener:register("right", moveSelection)
+    keyListener:register("backspace", function(...) clear() end)
 end
 
 function love.draw()
@@ -312,6 +310,13 @@ function updateSliders()
     rgbDisplay:setColor(r, g, b)
 end
 
+function clear(cell)
+    cell = cell or selectedCell
+
+    cell:setColor(255, 255, 255)
+    if cell == selectedCell then
+        updateSliders()
+    end
 end
 
 moveSelection = {
