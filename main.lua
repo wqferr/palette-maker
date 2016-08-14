@@ -3,6 +3,7 @@ local Slider = require "slider"
 local ClickMap = require "clickmap"
 local ModeController = require "modecontroller"
 local ColorContainer = require "colorcontainer"
+local EventListener = require "eventlistener"
 
 local gradW, gradH = 200, 30
 local cellW, cellH = 20, 20
@@ -10,6 +11,7 @@ local gridX, gridY = 50, 50
 local gridR, gridC = 15, 15
 local gridSpacing = 7
 
+local selectedRow, selectedCol
 local selectedCell
 local cellFrame, selectFrame
 
@@ -19,6 +21,8 @@ local satGradientData, satGradient
 local lightGradientData, lightGradient
 local pickerCursorImg
 local huePicker, satPicker, lightPicker
+
+local keyListener
 
 local cells
 
@@ -145,9 +149,7 @@ function love.load()
         if mb == 3 then
             region.cell:setColor(255, 255, 255)
             if region.cell == selectedCell then
-                huePicker:setPercent(0)
-                satPicker:setPercent(0)
-                lightPicker:setPercent(1)
+                updateSliders()
             end
         else
             local r, g, b = region.cell:getColor()
@@ -158,6 +160,8 @@ function love.load()
 
             if mb == 1 then
                 selectedCell = cells[region.row][region.col]
+                selectedRow = region.row
+                selectedCol = region.col
             elseif mb == 2 then
                 selectedCell:setColor(255*r, 255*g, 255*b)
             end
@@ -188,6 +192,15 @@ function love.load()
         end
     end
     selectedCell = cells[1][1]
+    selectedRow = 1
+    selectedCol = 1
+
+
+    keyListener = EventListener()
+    keyListener:register("up", moveSelection)
+    keyListener:register("down", moveSelection)
+    keyListener:register("left", moveSelection)
+    keyListener:register("right", moveSelection)
 end
 
 function love.draw()
@@ -239,6 +252,10 @@ function love.mousemoved(x, y)
     pickerController.updateCursor(x)
 end
 
+function love.keypressed(k)
+    keyListener:alert(k)
+end
+
 
 
 function getHSV()
@@ -277,9 +294,52 @@ function updateGradients()
     )
     satGradient = love.graphics.newImage(satGradientData)
 
-    lightPicker:setPalette(lightGradient)
-    satPicker:setPalette(satGradient)
+    lightPicker:setImage(lightGradient)
+    satPicker:setImage(satGradient)
 
     rgbPicker:setColor(getRGB())
     selectedCell:setColor(getRGB())
 end
+
+function updateSliders()
+    local r, g, b = selectedCell:getColor()
+    local h, s, v = HSV.fromRGB(r/255, g/255, b/255)
+    huePicker:setPercent(h/360)
+    satPicker:setPercent(s)
+    lightPicker:setPercent(v)
+
+    rgbPicker:setColor(r, g, b)
+end
+
+moveSelection = {
+    up = function()
+        if selectedRow > 1 then
+            selectedRow = selectedRow - 1
+        end
+    end,
+    down = function()
+        if selectedRow < gridR then
+            selectedRow = selectedRow + 1
+        end
+    end,
+    left = function()
+        if selectedCol > 1 then
+            selectedCol = selectedCol - 1
+        end
+    end,
+    right = function()
+        if selectedCol < gridC then
+            selectedCol = selectedCol + 1
+        end
+    end
+}
+setmetatable(
+    moveSelection,
+    {
+        __call = function(t, k)
+            moveSelection[k]()
+            selectedCell = cells[selectedRow][selectedCol]
+            updateSliders()
+        end
+    }
+)
