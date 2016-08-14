@@ -23,6 +23,7 @@ function ColorPicker:getCursorPos()
     return self.cursor.x, self.cursor.y
 end
 
+
 function ColorPicker:setCursorPos(x, y)
     if x then
         self.cursor.x = x
@@ -36,6 +37,14 @@ function ColorPicker:getColor()
     return self.palette:getData():getPixel(
         self.cursor.x, self.cursor.y
     )
+end
+
+function ColorPicker:getWidth()
+    return self.palette:getWidth()
+end
+
+function ColorPicker:getHeight()
+    return self.palette:getHeight()
 end
 
 function ColorPicker:draw(x, y)
