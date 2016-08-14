@@ -1,5 +1,7 @@
 local HSV = require "hsv"
 local ColorPicker = require "colorpicker"
+local ClickMap = require "clickmap"
+local ModeController = require "modecontroller"
 
 local gradientData, gradient
 local pickerCursorImg
@@ -18,6 +20,28 @@ function love.load()
     gradient = love.graphics.newImage(gradientData)
     pickerCursorImg = love.graphics.newImage("img/cursor.png")
 
+    pickerController = ModeController(
+        {
+            normal = {
+                updateCursor = function() end
+            },
+            grab = {
+                __enter = function(controller, p)
+                    pickerController.picker = p
+                end,
+                __exit = function()
+                    pickerController.picker = nil
+                end,
+                updateCursor = function(x)
+                    if pickerController.picker then
+                        pickerController.picker:setCursorPos(x, 0)
+                    end
+                end
+            }
+        },
+        "normal"
+    )
+
     picker = ColorPicker(
         gradient,
         pickerCursorImg,
@@ -33,8 +57,12 @@ function love.draw()
     love.graphics.setColor(255, 255, 255)
 end
 
+function love.mousepressed(x, y, mb)
+    local r = clickmap:click(x, y)
+end
+
 function love.mousemoved(x, y)
     x = x - 100
     x = math.max(0, math.min(x, gradient:getWidth() - 1))
-    picker:setCursorPos(x)
+    pickerController.updateCursor(x)
 end
