@@ -198,7 +198,14 @@ function love.load()
     keyListener:register("right", moveSelection)
     keyListener:register("backspace", function(...) clear() end)
     keyListener:register("delete", function(...) clear() end)
-    keyListener:register("+", lighten)
+    keyListener:register("=",
+                         function()
+                             if love.keyboard.isDown("lshift")
+                                 or love.keyboard.isDown("rshift") then
+                                 lighten()
+                             end
+                         end
+                     )
     keyListener:register("-", darken)
 end
 
@@ -325,7 +332,17 @@ function selectCell(r, c)
 end
 
 function lighten()
-    
+    local h, s, v = selectedCell:getHSV()
+    v = math.min(1, 0.1 + v*1.1)
+    selectedCell:setHSV(h, s, v)
+    updateSliders()
+end
+
+function darken()
+    local h, s, v = selectedCell:getHSV()
+    v = math.max(0, (v-0.1) / 1.1)
+    selectedCell:setHSV(h, s, v)
+    updateSliders()
 end
 
 moveSelection = {
@@ -367,11 +384,14 @@ setmetatable(
             if moveSelection[k]() then
                 local setColor = false
                 if love.keyboard.isDown("lshift") then
-                    v = math.min(1, 0.1 + v*1.1)
-                    setColor = true
+                    if love.keyboard.isDown("lctrl") then
+                        -- transition
+                    else
+                        v = math.min(1, 0.1 + v*1.1)
+                        setColor = true
+                    end
                 elseif love.keyboard.isDown("lctrl") then
-                    v = math.floor(100 * (v/1.1)) / 100
-                    v = math.max(0, v - 0.1)
+                    v = math.max(0, (v-0.1) / 1.1)
                     setColor = true
                 end
 
