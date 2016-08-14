@@ -68,7 +68,9 @@ function ClickMap:click(x, y)
 end
 
 function ClickMap:release(x, y)
-    self.clickedRegion:release(x, y)
+    if self.clickedRegion then
+        self.clickedRegion:release(x, y)
+    end
     self.clickedRegion = nil
 end
 
