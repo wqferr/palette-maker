@@ -19,8 +19,10 @@ function love.load()
     pickerCursorImg = love.graphics.newImage("img/cursor.png")
 
     picker = ColorPicker(
-        gradient, pickerCursorImg,
-        -pickerCursorImg:getWidth()/2, -pickerCursorImg:getHeight()/8
+        gradient,
+        pickerCursorImg,
+        -pickerCursorImg:getWidth()/2,
+        -pickerCursorImg:getHeight()/8
     )
 end
 
