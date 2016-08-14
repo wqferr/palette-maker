@@ -44,9 +44,9 @@ function ModeController:getCurMode()
     return self.curMode
 end
 
-function ModeController:setMode(id)
-    self:getMode().__exit(self, id)
-    self:getMode().__enter(self)
+function ModeController:setMode(id, arg)
+    self:getMode().__exit(self, id, arg)
+    self:getMode().__enter(self, arg)
     self.curMode = id
 end
 
