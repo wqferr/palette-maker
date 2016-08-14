@@ -5,7 +5,7 @@ ModeController.__index = function(t, k)
         return v
     end
 
-    return t:getMode()[k]
+    return t.modes[t.curMode][k]
 end
 
 local function nop() end
@@ -41,8 +41,8 @@ function ModeController:getMode()
 end
 
 function ModeController:setMode(id, arg)
-    self:getMode().__exit(self, id, arg)
-    self:getMode().__enter(self, arg)
+    self.modes[self.curMode].__exit(self, id, arg)
+    self.modes[id].__enter(self, arg)
     self.curMode = id
 end
 
