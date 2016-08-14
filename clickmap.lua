@@ -86,39 +86,35 @@ end
 
 ClickMap.registerShape(
     "rect",
-    {
-        new = function(x, y, w, h)
-            return {
-                x = x,
-                y = y,
-                w = w,
-                h = h
-            }
-        end,
-        check = function(region, x, y)
-            if x < region.x or y < region.y then
-                return false
-            end
-            return x < region.x + region.w and
-                    y < region.y + region.h
+    function(x, y, w, h)
+        return {
+            x = x,
+            y = y,
+            w = w,
+            h = h
+        }
+    end,
+    function(region, x, y)
+        if x < region.x or y < region.y then
+            return false
         end
-    }
+        return x < region.x + region.w and
+                y < region.y + region.h
+    end
 )
 ClickMap.registerShape(
     "circle",
-    {
-        new = function(x, y, r)
-            return {
-                x = x,
-                y = y,
-                r = r
-            }
-        end,
-        check = function(region, x, y)
-            local dx, dy = x - region.x, y - region.y
-            return dx*dx + dy*dy <= region.r*region.r
-        end
-    }
+    function(x, y, r)
+        return {
+            x = x,
+            y = y,
+            r = r
+        }
+    end,
+    function(region, x, y)
+        local dx, dy = x - region.x, y - region.y
+        return dx*dx + dy*dy <= region.r*region.r
+    end
 )
 
 setmetatable(
