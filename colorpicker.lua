@@ -23,7 +23,6 @@ function ColorPicker:getCursorPos()
     return self.cursor.x, self.cursor.y
 end
 
-
 function ColorPicker:setCursorPos(x, y)
     if x then
         self.cursor.x = x
@@ -31,6 +30,18 @@ function ColorPicker:setCursorPos(x, y)
     if y then
         self.cursor.y = y
     end
+end
+
+function ColorPicker:getPercent()
+    return self.cursor.x / (self:getWidth()-1)
+end
+
+function ColorPicker:setPercent(p)
+    self.cursor.x = p * (self:getWidth()-1)
+end
+
+function ColorPicker:setPalette(img)
+    self.palette = img
 end
 
 function ColorPicker:getColor()
