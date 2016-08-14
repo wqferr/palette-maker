@@ -37,10 +37,6 @@ function ModeController.new(modes, initMode)
 end
 
 function ModeController:getMode()
-    return self.modes[self.curMode]
-end
-
-function ModeController:getCurMode()
     return self.curMode
 end
 
