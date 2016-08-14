@@ -83,7 +83,7 @@ function love.load()
         -pickerCursorImg:getWidth()/2,
         -pickerCursorImg:getHeight()/8
     )
-    lightPicker.x, lightPicker.y = 500, 250
+    lightPicker.x, lightPicker.y = 500, 300
     lightPicker:setPercent(1)
 
     satPicker = ColorPicker(
@@ -92,7 +92,7 @@ function love.load()
         -pickerCursorImg:getWidth()/2,
         -pickerCursorImg:getHeight()/8
     )
-    satPicker.x, satPicker.y = 500, 300
+    satPicker.x, satPicker.y = 500, 250
     satPicker:setPercent(1)
 
     local click = function(r, x, y)
