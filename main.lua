@@ -32,6 +32,10 @@ local cells
 local fileName
 
 local fonts
+local helpSection1, helpSection2
+local helpText1, helpText2
+local helpText2X, helpTextY
+local helpSectionY
 
 function love.load(arg)
     hueGradientData = love.image.newImageData(gradW, gradH)
@@ -233,6 +237,29 @@ function love.load(arg)
     else
         fileName = DEFAULT_FILE_NAME
     end
+
+    helpSection1 = "Movement controls:"
+    helpText1 = "ctrl: increase brightness\n"..
+                "shift + ctrl: decrease brightness\n"..
+                "alt: increase saturation\n"..
+                "shift + alt: decrease saturation\n"..
+                "ctrl + alt: color interpolation\n"..
+                "ctrl + shift + alt: copy"
+
+    helpSection2 = "Other controls:"
+    helpText2 = "ctrl + s: save\n"..
+                "+: increase brightness\n"..
+                "-: decrease brightness\n"..
+                "Other controls:"
+
+    helpSection1 = love.graphics.newText(fonts[16], helpSection1)
+    helpText1 = love.graphics.newText(fonts[12], helpText1)
+    helpSection2 = love.graphics.newText(fonts[16], helpSection2)
+    helpText2 = love.graphics.newText(fonts[12], helpText2)
+
+    helpText2X = math.ceil(gridX + ((gridC+1) * (gridSpacing+cellW)) / 2)
+    helpTextY = math.ceil(gridY + (gridR+0.6)*(gridSpacing+cellH))
+    helpSectionY = math.ceil(gridY + (gridR-0.2)*(gridSpacing+cellH))
 end
 
 function love.draw()
@@ -267,27 +294,11 @@ function love.draw()
         love.graphics.draw(selectFrame, selectedCell.x - 5, selectedCell.y - 5)
     end
     
-    local midX = math.ceil(gridX + ((gridC+1) * (gridSpacing+cellW)) / 2)
+    love.graphics.draw(helpSection1, gridX, helpSectionY)
+    love.graphics.draw(helpText1, gridX, helpTextY)
 
-    love.graphics.print("ctrl: increase brightness", gridX, math.ceil(gridY + (gridR+0.6)*(gridSpacing+cellH)))
-    love.graphics.print("shift + ctrl: decrease brightness", gridX, math.ceil(gridY + (gridR+1.2)*(gridSpacing+cellH)))
-    love.graphics.print("alt: increase saturation", gridX, math.ceil(gridY + (gridR+1.8)*(gridSpacing+cellH)))
-    love.graphics.print("shift + alt: decrease saturation", gridX, math.ceil(gridY + (gridR+2.4)*(gridSpacing+cellH)))
-    love.graphics.print(
-        "ctrl + alt: color interpolation",
-        gridX, math.ceil(gridY + (gridR+3)*(gridSpacing + cellH))
-    )
-    love.graphics.print("ctrl + shift + alt: copy", gridX, math.ceil(gridY + (gridR+3.6)*(gridSpacing+cellH)))
-
-    love.graphics.print("ctrl + s: save", midX, math.ceil(gridY + (gridR+0.6)*(gridSpacing+cellH)))
-    love.graphics.print("+: increase brightness", midX, math.ceil(gridY + (gridR+1.2)*(gridSpacing+cellH)))
-    love.graphics.print("-: decrease brightness", midX, math.ceil(gridY + (gridR+1.8)*(gridSpacing+cellH)))
-    love.graphics.print("backspace: reset brightness and saturation", midX, math.ceil(gridY + (gridR+2.4)*(gridSpacing+cellH)))
-
-    love.graphics.setFont(fonts[16])
-    love.graphics.print("Movement controls:", gridX, math.ceil(gridY + (gridR-0.2)*(gridSpacing+cellH)))
-    love.graphics.print("Other controls:", midX, math.ceil(gridY + (gridR-0.2)*(gridSpacing+cellH)))
-    love.graphics.setFont(fonts[12])
+    love.graphics.draw(helpSection2, helpText2X, helpSectionY)
+    love.graphics.draw(helpText2, helpText2X, helpTextY)
 end
 
 function love.mousepressed(x, y, mb)
