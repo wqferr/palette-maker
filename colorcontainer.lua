@@ -15,7 +15,7 @@ function ColorContainer.new(x, y, w, h, color, frame, frameMode)
     c.y = y
     c.w = w
     c.h = h
-    c.color = color or {255, 255, 255}
+    c.color = color or {0, 0, 1}
 
     if type(frame) == "string" then
         c.frame = love.graphics.newImage(frame)
@@ -28,26 +28,29 @@ function ColorContainer.new(x, y, w, h, color, frame, frameMode)
     return c
 end
 
-function ColorContainer:getColor()
-    return unpack(self.color)
+function ColorContainer:getRGB()
+    return HSV.toRGB(self:getHSV())
 end
 
 function ColorContainer:getHSV()
-    return HSV.fromRGB(self:getColor())
+    return unpack(self.color)
 end
 
-function ColorContainer:setColor(r, g, b)
-    self.color = {r, g, b}
+function ColorContainer:setRGB(r, g, b)
+    self:setHSV(HSV.fromRGB(r, g, b))
 end
 
 function ColorContainer:setHSV(h, s, v)
-    self.color = {HSV.toRGB(h, s, v)}
+    if not h then
+        h = self.color[1]
+    end
+    self.color = {h, s, v}
 end
 
 function ColorContainer:draw()
     local prevColor = {love.graphics.getColor()}
 
-    love.graphics.setColor(self.color)
+    love.graphics.setColor(self:getRGB())
     love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
     if not self.frameMode then
         love.graphics.setColor(prevColor)

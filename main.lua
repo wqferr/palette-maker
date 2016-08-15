@@ -138,7 +138,7 @@ function love.load()
     )
     region.slider = satSlider
 
-    rgbDisplay = ColorContainer(550, 50, 100, 100, {getRGB()}, "img/rgbFrame.png", true)
+    rgbDisplay = ColorContainer(550, 50, 100, 100, {0, 0, 1}, "img/rgbFrame.png", true)
     rgbDisplayIcon = love.graphics.newImage("img/rgbDisplay.png")
 
 
@@ -176,7 +176,7 @@ function love.load()
 
             local c = ColorContainer(
                 x, y, cellW, cellH,
-                {255, 255, 255}, cellFrame
+                {0, 0, 1}, cellFrame
             )
             local region = clickmap:newRegion("rect", clickCell, nop, x, y, cellW, cellH)
             region.cell = c
@@ -302,8 +302,8 @@ function updateGradients()
     valSlider:setImage(valGradient)
     satSlider:setImage(satGradient)
 
-    rgbDisplay:setColor(getRGB())
-    selectedCell:setColor(getRGB())
+    rgbDisplay:setHSV(getHSV())
+    selectedCell:setHSV(getHSV())
 end
 
 function updateSliders()
@@ -318,7 +318,7 @@ end
 function clear(cell)
     cell = cell or selectedCell
 
-    cell:setColor(255, 255, 255)
+    cell:setHSV(nil, 0, 1)
     if cell == selectedCell then
         updateSliders()
     end
