@@ -295,7 +295,7 @@ function love.load(arg)
     helpText3 = love.graphics.newText(fonts[12], helpText3)
 
     helpText2X = math.ceil(gridX + ((gridC+1) * (gridSpacing+cellW)) / 2)
-    helpText3X = math.ceil(gridX + (gridC+2) * (gridSpacing+cellW))
+    helpText3X = math.ceil(gridX + (gridC+2.3) * (gridSpacing+cellW))
     helpTextY = math.ceil(gridY + (gridR+0.6)*(gridSpacing+cellH))
     helpSectionY = math.ceil(gridY + (gridR-0.2)*(gridSpacing+cellH))
 
