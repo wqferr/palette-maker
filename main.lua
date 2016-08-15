@@ -31,6 +31,8 @@ local cells
 
 local fileName
 
+local fonts
+
 function love.load(arg)
     hueGradientData = love.image.newImageData(gradW, gradH)
     hueGradientData:mapPixel(
@@ -220,13 +222,17 @@ function love.load(arg)
                          end
                     )
 
+    fonts = {
+        [12] = love.graphics.getFont(),
+        [16] = love.graphics.newFont(16)
+    }
+
     if arg[2] then
         fileName = arg[2]
         read()
     else
         fileName = DEFAULT_FILE_NAME
     end
-
 end
 
 function love.draw()
@@ -260,6 +266,28 @@ function love.draw()
     if selectedCell then
         love.graphics.draw(selectFrame, selectedCell.x - 5, selectedCell.y - 5)
     end
+    
+    local midX = math.ceil(gridX + ((gridC+1) * (gridSpacing+cellW)) / 2)
+
+    love.graphics.print("ctrl: increase brightness", gridX, math.ceil(gridY + (gridR+0.6)*(gridSpacing+cellH)))
+    love.graphics.print("shift + ctrl: decrease brightness", gridX, math.ceil(gridY + (gridR+1.2)*(gridSpacing+cellH)))
+    love.graphics.print("alt: increase saturation", gridX, math.ceil(gridY + (gridR+1.8)*(gridSpacing+cellH)))
+    love.graphics.print("shift + alt: decrease saturation", gridX, math.ceil(gridY + (gridR+2.4)*(gridSpacing+cellH)))
+    love.graphics.print("ctrl + alt: copy", gridX, math.ceil(gridY + (gridR+3)*(gridSpacing+cellH)))
+    love.graphics.print(
+        "ctrl + shift + alt: color interpolation",
+        gridX, math.ceil(gridY + (gridR+3.6)*(gridSpacing + cellH))
+    )
+
+    love.graphics.print("ctrl + s: save", midX, math.ceil(gridY + (gridR+0.6)*(gridSpacing+cellH)))
+    love.graphics.print("+: increase brightness", midX, math.ceil(gridY + (gridR+1.2)*(gridSpacing+cellH)))
+    love.graphics.print("-: decrease brightness", midX, math.ceil(gridY + (gridR+1.8)*(gridSpacing+cellH)))
+    love.graphics.print("backspace: reset brightness and saturation", midX, math.ceil(gridY + (gridR+2.4)*(gridSpacing+cellH)))
+
+    love.graphics.setFont(fonts[16])
+    love.graphics.print("Movement controls:", gridX, math.ceil(gridY + (gridR-0.2)*(gridSpacing+cellH)))
+    love.graphics.print("Other controls:", midX, math.ceil(gridY + (gridR-0.2)*(gridSpacing+cellH)))
+    love.graphics.setFont(fonts[12])
 end
 
 function love.mousepressed(x, y, mb)
