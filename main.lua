@@ -2,7 +2,7 @@ local HSV = require "hsv"
 local Slider = require "slider"
 local ClickMap = require "clickmap"
 local ModeController = require "modecontroller"
-local ColorContainer = require "colorcontainer"
+local ColourContainer = require "colourcontainer"
 local EventListener = require "eventlistener"
 
 local DEFAULT_FILE_NAME = "palette.png"
@@ -148,7 +148,7 @@ function love.load(arg)
     )
     region.slider = satSlider
 
-    rgbDisplay = ColorContainer(550, 50, 100, 100, {0, 0, 1}, "img/rgbFrame.png", true)
+    rgbDisplay = ColourContainer(550, 50, 100, 100, {0, 0, 1}, "img/rgbFrame.png", true)
     rgbDisplayIcon = love.graphics.newImage("img/rgbDisplay.png")
 
 
@@ -181,7 +181,7 @@ function love.load(arg)
             end
         end
 
-        updateColors()
+        updateColours()
     end
 
     local nop = function() end
@@ -193,7 +193,7 @@ function love.load(arg)
             local x, y = gridX + (j-1) * (gridSpacing + cellW),
                          gridY + (i-1) * (gridSpacing + cellH)
 
-            local c = ColorContainer(
+            local c = ColourContainer(
                 x, y, cellW, cellH,
                 {0, 0, 1}, cellFrame
             )
@@ -227,7 +227,7 @@ function love.load(arg)
                              else
                                  lighten()
                              end
-                             updateColors()
+                             updateColours()
                          end
                      )
     keyListener:register("-",
@@ -241,7 +241,7 @@ function love.load(arg)
                             else
                                 darken()
                             end
-                            updateColors()
+                            updateColours()
                          end
                      )
     keyListener:register("s",
@@ -271,14 +271,14 @@ function love.load(arg)
                 "shift + ctrl: decrease brightness\n"..
                 "alt: increase saturation\n"..
                 "shift + alt: decrease saturation\n"..
-                "ctrl + alt: color interpolation\n"..
+                "ctrl + alt: colour interpolation\n"..
                 "ctrl + shift + alt: copy"
 
     helpSection2 = "Mouse controls:"
     helpText2 = "left click: select cell\n"..
                 "right click: copy into selected cell\n"..
                 "middle click: reset S and V\n"..
-                "ctrl + left click: mix color into selection"
+                "ctrl + left click: mix colour into selection"
 
     helpSection3 = "Other controls:"
     helpText3 = "ctrl + s: save\n"..
@@ -296,8 +296,8 @@ function love.load(arg)
 
     helpText2X = math.ceil(gridX + ((gridC+1) * (gridSpacing+cellW)) / 2)
     helpText3X = math.ceil(gridX + (gridC+2.3) * (gridSpacing+cellW))
-    helpTextY = math.ceil(gridY + (gridR+0.6)*(gridSpacing+cellH))
-    helpSectionY = math.ceil(gridY + (gridR-0.2)*(gridSpacing+cellH))
+    helpTextY = math.ceil(gridY + (gridR+0.6) * (gridSpacing+cellH))
+    helpSectionY = math.ceil(gridY + (gridR-0.2) * (gridSpacing+cellH))
 
     love.graphics.setLineWidth(.5)
 end
@@ -322,7 +322,7 @@ function love.draw()
 
     local rgb = ("RGB: %d, %d, %d"):format(getRGB())
     local w = love.graphics.getFont():getWidth(rgb)
-    love.graphics.print(rgb, rgbDisplay.x + (rgbDisplay.w - w)/2, rgbDisplay.y + rgbDisplay.h)
+    love.graphics.print(rgb, rgbDisplay.x + (rgbDisplay.w-w)/2, rgbDisplay.y + rgbDisplay.h)
 
     for i, row in ipairs(cells) do
         for j, cell in ipairs(row) do
@@ -421,7 +421,7 @@ function updateSliders()
     rgbDisplay:setHSV(h, s, v)
 end
 
-function updateColors()
+function updateColours()
     updateSliders()
     updateGradients()
 end
@@ -526,14 +526,12 @@ function moveSelection(direction)
         local h, s, v = selectedCell:getHSV()
         selectCell(r1, c1)
 
-        local setColor = true
+        local setColour = true
 
         if love.keyboard.isDown("lctrl") then
             if love.keyboard.isDown("lalt") then
-                -- if shift is held then it will copy the color
-                -- to the next cell without any changes
                 if not love.keyboard.isDown("lshift") then
-                    setColor = false
+                    setColour = false
 
                     local r2, c2 = nextFilledCell(r0, c0, direction)
                     if r2 then
@@ -544,7 +542,6 @@ function moveSelection(direction)
                         local dh, ds, dv = h2-h0, s2-s0, v2-v0
                         dh, ds, dv = dh/d, ds/d, dv/d
 
-                        -- Linear interpolation of H, S and V
                         local i = 1
                         while r1 ~= r2 or c1 ~= c2 do
                             cells[r1][c1]:setHSV(
@@ -570,14 +567,14 @@ function moveSelection(direction)
                 s = math.min(1, 0.1 + s*1.1)
             end
         else
-            setColor = false
+            setColour = false
         end
 
-        if setColor then
+        if setColour then
             selectedCell:setHSV(h, s, v)
         end
 
-        updateColors()
+        updateColours()
         return true
     end
     return false

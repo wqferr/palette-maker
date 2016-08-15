@@ -1,21 +1,21 @@
 local HSV = require "hsv"
 
-local ColorContainer = {}
-ColorContainer.__index = ColorContainer
+local ColourContainer = {}
+ColourContainer.__index = ColourContainer
 
 local NO_FRAME = love.image.newImageData(1, 1)
 NO_FRAME:setPixel(0, 0, 0, 0, 0, 0)
 NO_FRAME = love.graphics.newImage(NO_FRAME)
 
-function ColorContainer.new(x, y, w, h, color, frame, frameMode)
+function ColourContainer.new(x, y, w, h, colour, frame, frameMode)
     local c = {}
-    setmetatable(c, ColorContainer)
+    setmetatable(c, ColourContainer)
 
     c.x = x
     c.y = y
     c.w = w
     c.h = h
-    c.color = color or {0, 0, 1}
+    c.colour = colour or {0, 0, 1}
 
     if type(frame) == "string" then
         c.frame = love.graphics.newImage(frame)
@@ -28,52 +28,52 @@ function ColorContainer.new(x, y, w, h, color, frame, frameMode)
     return c
 end
 
-function ColorContainer:getRGB()
+function ColourContainer:getRGB()
     return HSV.toRGB(self:getHSV())
 end
 
-function ColorContainer:getHSV()
-    return unpack(self.color)
+function ColourContainer:getHSV()
+    return unpack(self.colour)
 end
 
-function ColorContainer:setRGB(r, g, b)
+function ColourContainer:setRGB(r, g, b)
     self:setHSV(HSV.fromRGB(r, g, b))
 end
 
-function ColorContainer:setHSV(h, s, v)
+function ColourContainer:setHSV(h, s, v)
     if not h then
-        h = self.color[1]
+        h = self.colour[1]
     end
-    self.color = {h, s, v}
+    self.colour = {h, s, v}
 end
 
-function ColorContainer:isWhite()
+function ColourContainer:isWhite()
     local h, s, v = self:getHSV()
     return s == 0 and v == 1
 end
 
-function ColorContainer:draw()
-    local prevColor = {love.graphics.getColor()}
+function ColourContainer:draw()
+    local prevColour = {love.graphics.getColor()}
 
     love.graphics.setColor(self:getRGB())
     love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
     if not self.frameMode then
-        love.graphics.setColor(prevColor)
+        love.graphics.setColor(prevColour)
     end
 
     love.graphics.draw(self.frame, self.x, self.y)
 
-    love.graphics.setColor(prevColor)
+    love.graphics.setColor(prevColour)
 end
 
 
 setmetatable(
-    ColorContainer,
+    ColourContainer,
     {
         __call = function(t, ...)
-            return ColorContainer.new(...)
+            return ColourContainer.new(...)
         end
     }
 )
 
-return ColorContainer
+return ColourContainer
