@@ -94,3 +94,8 @@ in the corresponding position). If an argument was given to the program, it will
 se that name, otherwise, it will save to `palette.png`. *Note that the name
 given to the program does _not_ affect the file format.* If given the file name
 "image.jpg", the image will be saved to that file with `png` encoding.
+
+## Who are you anyway? ##
+I'm a Computer Sciences student at USP (University of São Paulo, Brazil), and
+aspirant game designer and developer. If need be, you may email me at
+`wqferr@gmail.com`
