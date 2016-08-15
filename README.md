@@ -10,7 +10,9 @@ artists.
 If you already have LÖVE 0.10.1 or higher installed, you can:
 * Download the repo and run the source code
 * Download the .love file provided
+
 If not, and you're on Windows, you can download the 32 bits exe provided.
+
 If you're not on Windows or are too paranoid to donwload an exe, you'll have to
 install LÖVE.
 
