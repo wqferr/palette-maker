@@ -2,7 +2,6 @@
 Made using LÖVE 0.10.1
 
 ## Overview ##
-
 ### What is this? ###
 This is an application to help make colour palettes, targeted mainly at pixel
 artists.
@@ -24,6 +23,7 @@ Furthermore, if no argument is given, it will NOT import any palette, and the
 output file will be `palette.png`.
 
 ## TOO MANY BUTTONS, HALP ##
+### Basic Interface and Commands ###
 All the commands are listed below the grid, but here's a more detailed
 explanation:
 
@@ -37,11 +37,40 @@ the arrow keys.
 ### Sliders ###
 On the right side of the window, you'll see 3 sliders representing the 3
 components of the HSV encoding. By changing the values of these sliders, you'll
-change the value of the selected cell. The sliders can also be controlled solely
-with the keyboard using the +/- keys with different modifier keys:
+change the value of the selected cell. A larger display of the colour can be
+found above the sliders. The sliders can also be controlled solely
+with he keyboard using the +/- keys with different modifier keys:
 
 * ALT for H
 * CTRL for S
 * None for V
 
-More help coming soon...
+## Basic Cell Interaction ##
+By holding different modifiers while using the arrow keys, you can make gradual
+transitions between colours. The basic commands are:
+
+* CTRL: Increase brightness
+* CTRL + SHIFT: Decrease brightness
+* ALT: Increase saturation
+* ALT + SHIFT: Decrease saturation
+* CTRL + SHIFT + ALT: Copy colour
+
+The increase commands take a value `x` and take it to `0.1 + (1.1*x)`.
+
+Similarly, the decrease commands take a value `x` and take it to
+`(x-0.1) / 1.1`.
+
+The copy command simply copies the H, S and V values into the next cell.
+
+The best way to understand these commands is to just mess around with some
+colours and see what happens. Go ahead, it's not hard!
+
+## Colour Interpolation ##
+One of the most powerful tools available in PaletteMaker. Suppose your sprite
+has reds and blues, but you need some intermediate tones. You can set the first
+cell to red, leave a few white cells in the same row or column, then set a blue
+cell.
+After this setup, select one cell, hold CTRL + ALT and press the arrow key in
+the direction of the other one.
+
+Like magic, each cell inbetween is set to gradual tones between the two colours!
