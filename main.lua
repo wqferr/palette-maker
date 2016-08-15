@@ -160,13 +160,25 @@ function love.load(arg)
         if mb == 3 then
             clear(region.cell)
         else
+            updateSliders()
+
             local h, s, v = region.cell:getHSV()
-            hueSlider:setPercent(h / 360)
-            satSlider:setPercent(s)
-            valSlider:setPercent(v)
 
             if mb == 1 then
-                selectCell(region.row, region.col)
+                if love.keyboard.isDown("lctrl")
+                    or love.keyboard.isDown("rctrl") then
+                        local hs, ss, vs = selectedCell:getHSV()
+                        local dh, ds, dv = h - hs, s - ss, v - vs
+                        hs, ss, vs = hs + dh/10, ss + ds/10, vs + dv/10
+
+                        hs = (hs + dh/10) % 360
+                        ss = math.max(0, math.min(1, ss + ds/10))
+                        vs = math.max(0, math.min(1, vs + dv/10))
+                        selectedCell:setHSV(hs, ss, vs)
+                        updateSliders()
+                else
+                    selectCell(region.row, region.col)
+                end
             elseif mb == 2 then
                 selectedCell:setHSV(h, s, v)
             end
