@@ -41,8 +41,8 @@ change the value of the selected cell. A larger display of the colour can be
 found above the sliders. The sliders can also be controlled solely
 with he keyboard using the +/- keys with different modifier keys:
 
-* ALT for H
-* CTRL for S
+* `ALT` for H
+* `CTRL` for S
 * None for V
 
 You can also reset the S and V sliders to their initial values (0 and 1
@@ -52,11 +52,11 @@ respectively) by pressing `del`.
 By holding different modifiers while using the arrow keys, you can make gradual
 transitions between colours. The basic commands are:
 
-* CTRL: Increase brightness
-* CTRL + SHIFT: Decrease brightness
-* ALT: Increase saturation
-* ALT + SHIFT: Decrease saturation
-* CTRL + SHIFT + ALT: Copy colour
+* `CTRL`: Increase brightness
+* `CTRL + SHIFT`: Decrease brightness
+* `ALT`: Increase saturation
+* `ALT + SHIFT`: Decrease saturation
+* `CTRL + SHIFT + ALT`: Copy colour
 
 The increase commands take a value `x` and take it to `0.1 + (1.1*x)`.
 
@@ -73,7 +73,7 @@ One of the most powerful tools available in PaletteMaker. Suppose your sprite
 has reds and blues, but you need some intermediate tones. You can set the first
 cell to red, leave a few white cells in the same row or column, then set a blue
 cell.
-After this setup, select one cell, hold CTRL + ALT and press the arrow key in
+After this setup, select one cell, hold `CTRL + ALT` and press the arrow key in
 the direction of the other one.
 
 Like magic, each cell inbetween is set to gradual tones between the two colours!
@@ -83,5 +83,14 @@ This could be useful for getting intermediate tones given two colours if the
 cells which contain these tones are not in the same row nor column, or for
 mixing more than two colours.
 
-If you hold CTRL while left clicking a cell, the selected cell will gradually
+If you hold `CTRL` while left clicking a cell, the selected cell will gradually
 approach the clicked cell's colour.
+
+## Other details ##
+### Saving ###
+Pressing `CTRL + S` will dump the resulting palette into a 16x16 image, with a
+1 to 1 correlation cell-pixel (i.e. each cell dumps its color into the pixel
+in the corresponding position). If an argument was given to the program, it will
+se that name, otherwise, it will save to `palette.png`. *Note that the name
+given to the program does _not_ affect the file format.* If given the file name
+"image.jpg", the image will be saved to that file with `png` encoding.
