@@ -210,13 +210,34 @@ function love.load(arg)
     keyListener:register("delete", function(...) clear() end)
     keyListener:register("=",
                          function()
-                             if love.keyboard.isDown("lshift")
-                                 or love.keyboard.isDown("rshift") then
+                             if love.keyboard.isDown("lctrl")
+                                 or love.keyboard.isDown("rctrl") then
+                                     saturate()
+                             elseif love.keyboard.isDown("lalt") 
+                                 or love.keyboard.isDown("ralt") then
+                                     increaseHue()
+                             else
                                  lighten()
                              end
+                             updateSliders()
+                             updateGradients()
                          end
                      )
-    keyListener:register("-", darken)
+    keyListener:register("-",
+                         function()
+                             if love.keyboard.isDown("lctrl")
+                                 or love.keyboard.isDown("rctrl") then
+                                desaturate()
+                             elseif love.keyboard.isDown("lalt") 
+                                 or love.keyboard.isDown("ralt") then
+                                decreaseHue()
+                            else
+                                darken()
+                            end
+                            updateSliders()
+                            updateGradients()
+                         end
+                     )
     keyListener:register("s",
                          function()
                              if love.keyboard.isDown("lctrl")
@@ -248,9 +269,9 @@ function love.load(arg)
 
     helpSection2 = "Other controls:"
     helpText2 = "ctrl + s: save\n"..
-                "+: increase brightness\n"..
-                "-: decrease brightness\n"..
-                "Other controls:"
+                "+/-: change brightness\n"..
+                "ctrl + +/-: change saturation\n"..
+                "alt + +/-: change hue\n"
 
     helpSection1 = love.graphics.newText(fonts[16], helpSection1)
     helpText1 = love.graphics.newText(fonts[12], helpText1)
@@ -394,14 +415,36 @@ function lighten()
     local h, s, v = selectedCell:getHSV()
     v = math.min(1, 0.1 + v*1.1)
     selectedCell:setHSV(h, s, v)
-    updateSliders()
 end
 
 function darken()
     local h, s, v = selectedCell:getHSV()
     v = math.max(0, (v-0.1) / 1.1)
     selectedCell:setHSV(h, s, v)
-    updateSliders()
+end
+
+function saturate()
+    local h, s, v = selectedCell:getHSV()
+    s = math.min(1, 0.1 + s*1.1)
+    selectedCell:setHSV(h, s, v)
+end
+
+function desaturate()
+    local h, s, v = selectedCell:getHSV()
+    s = math.max(0, (s-0.1) / 1.1)
+    selectedCell:setHSV(h, s, v)
+end
+
+function increaseHue()
+    local h, s, v = selectedCell:getHSV()
+    h = (h+5) % 360
+    selectedCell:setHSV(h, s, v)
+end
+
+function decreaseHue()
+    local h, s, v = selectedCell:getHSV()
+    h = (h-5) % 360
+    selectedCell:setHSV(h, s, v)
 end
 
 nextCell = {
