@@ -8,7 +8,7 @@ local EventListener = require "eventlistener"
 local gradW, gradH = 200, 30
 local cellW, cellH = 20, 20
 local gridX, gridY = 50, 50
-local gridR, gridC = 15, 15
+local gridR, gridC = 16, 16
 local gridSpacing = 7
 
 local selectedRow, selectedCol
@@ -403,7 +403,6 @@ function moveSelection(direction)
                     setColor = false
 
                     local r2, c2 = nextFilledCell(r0, c0, direction)
-                    print("next ", r2, c2)
                     if r2 then
                         local d = dist(r0, c0, r2, c2)
 
@@ -412,6 +411,7 @@ function moveSelection(direction)
                         local dh, ds, dv = h2-h0, s2-s0, v2-v0
                         dh, ds, dv = dh/d, ds/d, dv/d
 
+                        -- Linear interpolation of H, S and V
                         local i = 1
                         while r1 ~= r2 or c1 ~= c2 do
                             cells[r1][c1]:setHSV(
@@ -422,6 +422,7 @@ function moveSelection(direction)
                             r1, c1 = nxt(r1, c1)
                             i = i + 1
                         end
+                        selectCell(r0, c0)
                     end
                 end
             elseif love.keyboard.isDown("lshift") then
