@@ -345,60 +345,78 @@ function darken()
     updateSliders()
 end
 
-moveSelection = {
-    up = function()
-        if selectedRow > 1 then
-            selectCell(selectedRow-1, selectedCol)
-            return true
+nextCell = {
+    up = function(r, c)
+        if r > 1 then
+            return r-1, c
+        else
+            return r, c
         end
-        return false
     end,
-    down = function()
-        if selectedRow < gridR then
-            selectCell(selectedRow+1, selectedCol)
-            return true
+    down = function(r, c)
+        if r < gridR then
+            return r+1, c
+        else
+            return r, c
         end
-        return false
     end,
-    left = function()
-        if selectedCol > 1 then
-            selectCell(selectedRow, selectedCol-1)
-            return true
+    left = function(r, c)
+        if c > 1 then
+            return r, c-1
+        else
+            return r, c
         end
-        return false
     end,
-    right = function()
-        if selectedCol < gridC then
-            selectCell(selectedRow, selectedCol+1)
-            return true
+    right = function(r, c)
+        if c < gridC then
+            return r, c+1
+        else
+            return r, c
         end
-        return false
     end
 }
 setmetatable(
-    moveSelection,
+    nextCell,
     {
-        __call = function(t, k)
-            local h, s, v = selectedCell:getHSV()
-
-            if moveSelection[k]() then
-                local setColor = false
-                if love.keyboard.isDown("lshift") then
-                    if love.keyboard.isDown("lctrl") then
-                        -- transition
-                    else
-                        v = math.min(1, 0.1 + v*1.1)
-                        setColor = true
-                    end
-                elseif love.keyboard.isDown("lctrl") then
-                    v = math.max(0, (v-0.1) / 1.1)
-                    setColor = true
-                end
-
-                if setColor then
-                    selectedCell:setHSV(h, s, v)
-                end
-            end
+        __call = function(t, r, c, k)
+            return t[k](r, c)
         end
     }
 )
+
+function moveSelection(direction)
+    local nr, nc = nextCell(selectedRow, selectedCol, direction)
+    if nr ~= selectedRow or nc ~= selectedCol then
+        local h, s, v = selectedCell:getHSV()
+        selectCell(nr, nc)
+
+        local setColor = true
+
+        if love.keyboard.isDown("lctrl") then
+            if love.keyboard.isDown("lalt") then
+                -- TODO transition
+            elseif love.keyboard.isDown("lshift") then
+                v = math.max(0, (v-0.1) / 1.1)
+            else
+                v = math.min(1, 0.1 + v*1.1)
+            end
+        elseif love.keyboard.isDown("lalt") then
+            if love.keyboard.isDown("lshift") then
+                s = math.max(0, (s-0.1) / 1.1)
+            else
+                s = math.min(1, 0.1 + s*1.1)
+            end
+        else
+            setColor = false
+        end
+
+        if setColor then
+            selectedCell:setHSV(h, s, v)
+        end
+
+        updateSliders()
+        updateGradients()
+        return true
+    end
+    return false
+end
