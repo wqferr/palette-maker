@@ -45,6 +45,9 @@ with he keyboard using the +/- keys with different modifier keys:
 * CTRL for S
 * None for V
 
+You can also reset the S and V sliders to their initial values (0 and 1
+respectively) by pressing `del`.
+
 ## Basic Cell Interaction ##
 By holding different modifiers while using the arrow keys, you can make gradual
 transitions between colours. The basic commands are:
@@ -74,3 +77,11 @@ After this setup, select one cell, hold CTRL + ALT and press the arrow key in
 the direction of the other one.
 
 Like magic, each cell inbetween is set to gradual tones between the two colours!
+
+## Colour Mixing ##
+This could be useful for getting intermediate tones given two colours if the
+cells which contain these tones are not in the same row nor column, or for
+mixing more than two colours.
+
+If you hold CTRL while left clicking a cell, the selected cell will gradually
+approach the clicked cell's colour.
