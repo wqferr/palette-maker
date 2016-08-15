@@ -273,11 +273,11 @@ function love.draw()
     love.graphics.print("shift + ctrl: decrease brightness", gridX, math.ceil(gridY + (gridR+1.2)*(gridSpacing+cellH)))
     love.graphics.print("alt: increase saturation", gridX, math.ceil(gridY + (gridR+1.8)*(gridSpacing+cellH)))
     love.graphics.print("shift + alt: decrease saturation", gridX, math.ceil(gridY + (gridR+2.4)*(gridSpacing+cellH)))
-    love.graphics.print("ctrl + alt: copy", gridX, math.ceil(gridY + (gridR+3)*(gridSpacing+cellH)))
     love.graphics.print(
-        "ctrl + shift + alt: color interpolation",
-        gridX, math.ceil(gridY + (gridR+3.6)*(gridSpacing + cellH))
+        "ctrl + alt: color interpolation",
+        gridX, math.ceil(gridY + (gridR+3)*(gridSpacing + cellH))
     )
+    love.graphics.print("ctrl + shift + alt: copy", gridX, math.ceil(gridY + (gridR+3.6)*(gridSpacing+cellH)))
 
     love.graphics.print("ctrl + s: save", midX, math.ceil(gridY + (gridR+0.6)*(gridSpacing+cellH)))
     love.graphics.print("+: increase brightness", midX, math.ceil(gridY + (gridR+1.2)*(gridSpacing+cellH)))
