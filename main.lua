@@ -265,8 +265,9 @@ function love.load(arg)
         fileName = DEFAULT_FILE_NAME
     end
 
-    helpSection1 = "Movement controls:"
-    helpText1 = "ctrl: increase brightness\n"..
+    helpSection1 = "Arrow controls:"
+    helpText1 = "arrows: change selection\n"..
+                "ctrl: increase brightness\n"..
                 "shift + ctrl: decrease brightness\n"..
                 "alt: increase saturation\n"..
                 "shift + alt: decrease saturation\n"..
@@ -276,7 +277,7 @@ function love.load(arg)
     helpSection2 = "Mouse controls:"
     helpText2 = "left click: select cell\n"..
                 "right click: copy into selected cell\n"..
-                "middle click: same as delete\n"..
+                "middle click: reset S and V\n"..
                 "ctrl + left click: mix color into selection"
 
     helpSection3 = "Other controls:"
@@ -284,7 +285,7 @@ function love.load(arg)
                 "+/-: change brightness\n"..
                 "ctrl + +/-: change saturation\n"..
                 "alt + +/-: change hue\n"..
-                "delete: reset S and V"
+                "delete: reset selection S and V"
 
     helpSection1 = love.graphics.newText(fonts[16], helpSection1)
     helpText1 = love.graphics.newText(fonts[12], helpText1)
@@ -297,6 +298,8 @@ function love.load(arg)
     helpText3X = math.ceil(gridX + (gridC+2) * (gridSpacing+cellW))
     helpTextY = math.ceil(gridY + (gridR+0.6)*(gridSpacing+cellH))
     helpSectionY = math.ceil(gridY + (gridR-0.2)*(gridSpacing+cellH))
+
+    love.graphics.setLineWidth(.5)
 end
 
 function love.draw()
@@ -339,6 +342,10 @@ function love.draw()
 
     love.graphics.draw(helpSection3, helpText3X, helpSectionY)
     love.graphics.draw(helpText3, helpText3X, helpTextY)
+
+    love.graphics.setColor(150, 150, 150)
+    love.graphics.line(gridX - 10, helpTextY-2, helpText3X + helpText3:getWidth() + 10, helpTextY-2)
+    love.graphics.setColor(255, 255, 255)
 end
 
 function love.mousepressed(x, y, mb)
