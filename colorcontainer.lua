@@ -47,6 +47,11 @@ function ColorContainer:setHSV(h, s, v)
     self.color = {h, s, v}
 end
 
+function ColorContainer:isWhite()
+    local h, s, v = self:getHSV()
+    return s == 0 and v == 1
+end
+
 function ColorContainer:draw()
     local prevColor = {love.graphics.getColor()}
 

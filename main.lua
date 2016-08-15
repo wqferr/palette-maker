@@ -385,16 +385,45 @@ setmetatable(
 )
 
 function moveSelection(direction)
-    local nr, nc = nextCell(selectedRow, selectedCol, direction)
-    if nr ~= selectedRow or nc ~= selectedCol then
+    local r0, c0 = selectedRow, selectedCol
+    local nxt = nextCell[direction]
+    local r1, c1 = nxt(selectedRow, selectedCol)
+
+    if r1 ~= selectedRow or c1 ~= selectedCol then
         local h, s, v = selectedCell:getHSV()
-        selectCell(nr, nc)
+        selectCell(r1, c1)
 
         local setColor = true
 
         if love.keyboard.isDown("lctrl") then
             if love.keyboard.isDown("lalt") then
-                -- TODO transition
+                -- if shift is held then it will copy the color
+                -- to the next cell without any changes
+                if not love.keyboard.isDown("lshift") then
+                    setColor = false
+
+                    local r2, c2 = nextFilledCell(r0, c0, direction)
+                    print("next ", r2, c2)
+                    if r2 then
+                        local d = dist(r0, c0, r2, c2)
+
+                        local h0, s0, v0 = cells[r0][c0]:getHSV()
+                        local h2, s2, v2 = cells[r2][c2]:getHSV()
+                        local dh, ds, dv = h2-h0, s2-s0, v2-v0
+                        dh, ds, dv = dh/d, ds/d, dv/d
+
+                        local i = 1
+                        while r1 ~= r2 or c1 ~= c2 do
+                            cells[r1][c1]:setHSV(
+                                h0 + i*dh,
+                                s0 + i*ds,
+                                v0 + i*dv
+                            )
+                            r1, c1 = nxt(r1, c1)
+                            i = i + 1
+                        end
+                    end
+                end
             elseif love.keyboard.isDown("lshift") then
                 v = math.max(0, (v-0.1) / 1.1)
             else
@@ -419,4 +448,24 @@ function moveSelection(direction)
         return true
     end
     return false
+end
+
+function nextFilledCell(r, c, direction)
+    local nxt = nextCell[direction]
+    local nr, nc
+
+    repeat
+        nr, nc = nxt(r, c)
+        if nr == r and nc == c then
+            return nil
+        else
+            r, c = nr, nc
+        end
+    until not cells[r][c]:isWhite()
+
+    return r, c
+end
+
+function dist(r1, c1, r2, c2)
+    return math.abs(r2-r1) + math.abs(c2-c1)
 end
