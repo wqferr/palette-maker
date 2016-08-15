@@ -32,9 +32,9 @@ local cells
 local fileName
 
 local fonts
-local helpSection1, helpSection2
-local helpText1, helpText2
-local helpText2X, helpTextY
+local helpSection1, helpSection2, helpSection3
+local helpText1, helpText2, helpText3
+local helpText2X, helpText3X, helpTextY
 local helpSectionY
 
 function love.load(arg)
@@ -160,8 +160,6 @@ function love.load(arg)
         if mb == 3 then
             clear(region.cell)
         else
-            updateSliders()
-
             local h, s, v = region.cell:getHSV()
 
             if mb == 1 then
@@ -175,7 +173,6 @@ function love.load(arg)
                         ss = math.max(0, math.min(1, ss + ds/10))
                         vs = math.max(0, math.min(1, vs + dv/10))
                         selectedCell:setHSV(hs, ss, vs)
-                        updateSliders()
                 else
                     selectCell(region.row, region.col)
                 end
@@ -184,7 +181,7 @@ function love.load(arg)
             end
         end
 
-        updateGradients()
+        updateColors()
     end
 
     local nop = function() end
@@ -218,7 +215,6 @@ function love.load(arg)
     keyListener:register("down", moveSelection)
     keyListener:register("left", moveSelection)
     keyListener:register("right", moveSelection)
-    keyListener:register("backspace", function(...) clear() end)
     keyListener:register("delete", function(...) clear() end)
     keyListener:register("=",
                          function()
@@ -231,8 +227,7 @@ function love.load(arg)
                              else
                                  lighten()
                              end
-                             updateSliders()
-                             updateGradients()
+                             updateColors()
                          end
                      )
     keyListener:register("-",
@@ -246,8 +241,7 @@ function love.load(arg)
                             else
                                 darken()
                             end
-                            updateSliders()
-                            updateGradients()
+                            updateColors()
                          end
                      )
     keyListener:register("s",
@@ -279,18 +273,28 @@ function love.load(arg)
                 "ctrl + alt: color interpolation\n"..
                 "ctrl + shift + alt: copy"
 
-    helpSection2 = "Other controls:"
-    helpText2 = "ctrl + s: save\n"..
+    helpSection2 = "Mouse controls:"
+    helpText2 = "left click: select cell\n"..
+                "right click: copy into selected cell\n"..
+                "middle click: same as delete\n"..
+                "ctrl + left click: mix color into selection"
+
+    helpSection3 = "Other controls:"
+    helpText3 = "ctrl + s: save\n"..
                 "+/-: change brightness\n"..
                 "ctrl + +/-: change saturation\n"..
-                "alt + +/-: change hue\n"
+                "alt + +/-: change hue\n"..
+                "delete: reset S and V"
 
     helpSection1 = love.graphics.newText(fonts[16], helpSection1)
     helpText1 = love.graphics.newText(fonts[12], helpText1)
     helpSection2 = love.graphics.newText(fonts[16], helpSection2)
     helpText2 = love.graphics.newText(fonts[12], helpText2)
+    helpSection3 = love.graphics.newText(fonts[16], helpSection3)
+    helpText3 = love.graphics.newText(fonts[12], helpText3)
 
     helpText2X = math.ceil(gridX + ((gridC+1) * (gridSpacing+cellW)) / 2)
+    helpText3X = math.ceil(gridX + (gridC+2) * (gridSpacing+cellW))
     helpTextY = math.ceil(gridY + (gridR+0.6)*(gridSpacing+cellH))
     helpSectionY = math.ceil(gridY + (gridR-0.2)*(gridSpacing+cellH))
 end
@@ -332,6 +336,9 @@ function love.draw()
 
     love.graphics.draw(helpSection2, helpText2X, helpSectionY)
     love.graphics.draw(helpText2, helpText2X, helpTextY)
+
+    love.graphics.draw(helpSection3, helpText3X, helpSectionY)
+    love.graphics.draw(helpText3, helpText3X, helpTextY)
 end
 
 function love.mousepressed(x, y, mb)
@@ -405,6 +412,11 @@ function updateSliders()
     valSlider:setPercent(v)
 
     rgbDisplay:setHSV(h, s, v)
+end
+
+function updateColors()
+    updateSliders()
+    updateGradients()
 end
 
 function clear(cell)
@@ -558,8 +570,7 @@ function moveSelection(direction)
             selectedCell:setHSV(h, s, v)
         end
 
-        updateSliders()
-        updateGradients()
+        updateColors()
         return true
     end
     return false
