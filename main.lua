@@ -5,6 +5,8 @@ local ModeController = require "modecontroller"
 local ColorContainer = require "colorcontainer"
 local EventListener = require "eventlistener"
 
+local DEFAULT_FILE_NAME = "palette.png"
+
 local gradW, gradH = 200, 30
 local cellW, cellH = 20, 20
 local gridX, gridY = 50, 50
@@ -27,7 +29,9 @@ local sliderController, cellController
 
 local cells
 
-function love.load()
+local fileName
+
+function love.load(arg)
     hueGradientData = love.image.newImageData(gradW, gradH)
     hueGradientData:mapPixel(
         function(x, y, r, g, b, a)
@@ -207,6 +211,22 @@ function love.load()
                          end
                      )
     keyListener:register("-", darken)
+    keyListener:register("s",
+                         function()
+                             if love.keyboard.isDown("lctrl")
+                                 or love.keyboard.isDown("rctrl") then
+                                 save()
+                             end
+                         end
+                    )
+
+    if arg[2] then
+        fileName = arg[2]
+        read()
+    else
+        fileName = DEFAULT_FILE_NAME
+    end
+
 end
 
 function love.draw()
@@ -469,4 +489,39 @@ end
 
 function dist(r1, c1, r2, c2)
     return math.abs(r2-r1) + math.abs(c2-c1)
+end
+
+function read()
+    if love.filesystem.exists(fileName) then
+        local data, err = love.filesystem.newFileData(fileName)
+        if data then
+            local paletteData = love.image.newImageData(data)
+            paletteData:mapPixel(
+                function(x, y, r, g, b, a)
+                    cells[y+1][x+1]:setRGB(r, g, b)
+                    return r, g, b
+                end
+            )
+        else
+            love.window.showMessageBox("Error reading file", "The palette could not be recovered", "error")
+        end
+    end
+end
+
+function save()
+    local paletteData = love.image.newImageData(gridC, gridR)
+    paletteData:mapPixel(
+        function(x, y, r, g, b, a)
+            return cells[y+1][x+1]:getRGB()
+        end
+    )
+    local fileData = paletteData:encode("png")
+
+    local file = io.open(fileName, "w+")
+    if file then
+        file:write(fileData:getString())
+        file:close()
+    else
+        love.window.showMessageBox("Error writing file", "The palette could not be saved", "error")
+    end
 end
