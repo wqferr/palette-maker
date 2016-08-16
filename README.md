@@ -8,10 +8,13 @@ artists.
 
 ### How do I install it? ###
 If you already have LÖVE 0.10.1 or higher installed, you can:
-* Download the repo and run the source code
-* Download the .love file provided
 
-If not, and you're on Windows, you can download the 32 bits exe provided.
+* Download the repo and run the source code
+* [Download the .love file provided](https://gitlab.com/wqferr/palette-maker/tags)
+
+If not, and you're on Windows, you can
+[download the zip](https://gitlab.com/wqferr/palette-maker/tags) containing a
+32 bit exe and required libs.
 
 If you're not on Windows or are too paranoid to donwload an exe, you'll have to
 install LÖVE.
@@ -90,6 +93,20 @@ If you hold `CTRL` while left clicking a cell, the selected cell will gradually
 approach the clicked cell's colour.
 
 ## Other details ##
+### The Save Directory ###
+The saved palettes' destination depends on how you run the app, as well as in
+which OS you use.
+
+* If you use Windows:
+    * The .exe will save the files to %appdata%/palette-maker/
+    * The .love will save the files to
+    %appdata%/LOVE/palette-maker/
+* If you use a Unix system:
+    * The .love will save the files to ~/.local/share/love/palette-maker/
+
+Note that running the source code is, in practice, the same as running a .love
+file.
+
 ### Saving ###
 Pressing `CTRL + S` will dump the resulting palette into a 16x16 image, with a
 1 to 1 correlation cell-pixel (i.e. each cell dumps its color into the pixel
