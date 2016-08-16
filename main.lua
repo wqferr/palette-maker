@@ -624,13 +624,5 @@ function save()
             return cells[y+1][x+1]:getRGB()
         end
     )
-    local fileData = paletteData:encode("png")
-
-    local file = io.open(fileName, "w+")
-    if file then
-        file:write(fileData:getString())
-        file:close()
-    else
-        love.window.showMessageBox("Error writing file", "The palette could not be saved", "error")
-    end
+    paletteData:encode("png", fileName)
 end

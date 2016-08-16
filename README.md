@@ -23,6 +23,7 @@ If the file doesn't exist, it will remember the given name as the output file
 when the save command is given.
 Furthermore, if no argument is given, it will NOT import any palette, and the
 output file will be `palette.png`.
+More information on importing palettes in the `Reading` section.
 
 ## TOO MANY BUTTONS, HALP ##
 ### Basic Interface and Commands ###
@@ -95,7 +96,15 @@ Pressing `CTRL + S` will dump the resulting palette into a 16x16 image, with a
 in the corresponding position). If an argument was given to the program, it will
 se that name, otherwise, it will save to `palette.png`. *Note that the name
 given to the program does _not_ affect the file format.* If given the file name
-"image.jpg", the image will be saved to that file with `png` encoding.
+"image.jpg", the image will be saved to the app directory with that name and
+`png` encoding.
+
+### Reading ###
+You can import palettes by placing them in the app directory and passing their
+name as an additional argument to love. For now, it will just crash if the
+given file exists and its width or height are 17 or more.
+Regardless if the file previously existed or not, the app will dump the palette
+to that file when saving.
 
 ## Who are you anyway? ##
 I'm a Computer Sciences student at USP (University of São Paulo, Brazil), and
