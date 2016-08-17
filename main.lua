@@ -235,7 +235,8 @@ function love.load(arg)
     local selectCM = ClickMap()
     local clickPalette = function(r, x, y)
         if r.idx <= #palettes then
-            guiController:setMode("edit", palettes[r.idx].val)
+            local p = palettes[r.idx]
+            guiController:setMode("edit", p.img, p.val)
         end
     end
 
@@ -263,7 +264,23 @@ function love.load(arg)
                         val = nil
                     }
 
-                    -- TODO find all palettes and put them in the list
+                    local items = love.filesystem.getDirectoryItems("")
+                    for _, item in pairs(items) do
+                        if love.filesystem.isFile(item)
+                                and item:sub(-4) == ".png" then
+                            local data = love.image.newImageData(item)
+                            if data:getWidth() == data:getHeight()
+                                    and data:getWidth() == gridC then
+                                table.insert(
+                                    palettes,
+                                    {
+                                        img = love.graphics.newImage(data),
+                                        val = item
+                                    }
+                                )
+                            end
+                        end
+                    end
                 end,
                 draw = function()
                     for i = 1, #palettes do
@@ -277,9 +294,9 @@ function love.load(arg)
                 clickmap = selectCM
             },
             edit = {
-                __enter = function(controller, prevState, pal)
-                    if pal then
-                        local imgData = love.image.newImageData(pal)
+                __enter = function(controller, prevState, img, imgName)
+                    if img then
+                        local imgData = img:getData()
                         for i = 1, gridR do
                             for j = 1, gridC do
                                 cells[i][j]:setRGB(imgData:getPixel(j-1, i-1))
