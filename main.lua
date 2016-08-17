@@ -9,15 +9,22 @@ local ColourContainer = require "ui/colourcontainer"
 local DEFAULT_FILE_NAME = "palette.png"
 
 local gradW, gradH = 200, 30
-local cellW, cellH = 20, 20
+local cellSize = 20
 local gridX, gridY = 50, 50
 local gridR, gridC = 16, 16
 local gridSpacing = 7
 
+local paletteSize = 64
+local palettesR, palettesC = 8, 8
+local palettesX = 40
+local palettesY = 100 + palettesX
+local palettesSpacing = math.ceil((love.graphics.getWidth() - (2*palettesX + palettesC*paletteSize)) / (palettesC-1))
+
 local selectedRow, selectedCol
 local selectedCell
-local cellFrame, selectFrame
 
+local newPaletteIcon
+local cellFrame, selectFrame, palSelectFrame
 local rgbDisplay, rgbDisplayIcon
 local hueGradientData, hueGradient
 local satGradientData, satGradient
@@ -30,6 +37,7 @@ local guiController
 local sliderController
 
 local cells
+local palettes
 
 local fileName
 
@@ -40,112 +48,36 @@ local helpText2X, helpText3X, helpTextY
 local helpSectionY
 
 function love.load(arg)
-    hueGradientData = love.image.newImageData(gradW, gradH)
-    hueGradientData:mapPixel(
-        function(x, y, r, g, b, a)
-            local h = x/gradW * 360
+    initHSVSliders()
 
-            return HSV.toRGB(h, 1, 1)
-        end
-    )
-    hueGradient = love.graphics.newImage(hueGradientData)
-
-    valGradientData = love.image.newImageData(gradW, gradH)
-    valGradientData:mapPixel(
-        function(x, y, r, g, b, a)
-            local l = x / gradW
-
-            return HSV.toRGB(0, 0, l)
-        end
-    )
-    valGradient = love.graphics.newImage(valGradientData)
-
-    satGradientData = love.image.newImageData(gradW, gradH)
-    satGradientData:mapPixel(
-        function(x, y, r, g, b, a)
-            local s = x/gradW
-
-            return HSV.toRGB(0, s, 1)
-        end
-    )
-    satGradient = love.graphics.newImage(satGradientData)
-
-    sliderController = ModeController(
-        {
-            normal = {
-                updateCursor = function() end
-            },
-            grab = {
-                __enter = function(controller, prev, s)
-                    sliderController.slider = s
-                end,
-                __exit = function()
-                    sliderController.slider = nil
-                end,
-                updateCursor = function(x)
-                    if sliderController.slider then
-                        sliderController.slider:setCursorPos(x, 0)
-                        updateGradients()
-                    end
-                end
-            }
-        },
-        "normal"
-    )
-
-    sliderCursorImg = love.graphics.newImage("img/cursor.png")
-    hueSlider = Slider(
-        hueGradient,
-        sliderCursorImg,
-        -sliderCursorImg:getWidth()/2,
-        -sliderCursorImg:getHeight()/8
-    )
-    hueSlider.x, hueSlider.y = 500, 200
-
-    valSlider = Slider(
-        valGradient,
-        sliderCursorImg,
-        -sliderCursorImg:getWidth()/2,
-        -sliderCursorImg:getHeight()/8
-    )
-    valSlider.x, valSlider.y = 500, 300
-    valSlider:setPercent(1)
-
-    satSlider = Slider(
-        satGradient,
-        sliderCursorImg,
-        -sliderCursorImg:getWidth()/2,
-        -sliderCursorImg:getHeight()/8
-    )
-    satSlider.x, satSlider.y = 500, 250
-    satSlider:setPercent(0)
+    newPaletteIcon = love.graphics.newImage("img/newPalette.png")
 
     local editCM = ClickMap()
 
-    local click = function(r, x, y)
+    local clickSlider = function(r, x, y)
         sliderController:setMode("grab", r.slider)
     end
-    local release = function(r, x, y)
+    local releaseSlider = function(r, x, y)
         sliderController:setMode("normal")
     end
 
     local region = editCM:newRegion(
         "rect",
-        click, release,
+        clickSlider, releaseSlider,
         hueSlider.x, hueSlider.y, gradW, gradH
     )
     region.slider = hueSlider
 
     region = editCM:newRegion(
         "rect",
-        click, release,
+        clickSlider, releaseSlider,
         valSlider.x, valSlider.y, gradW, gradH
     )
     region.slider = valSlider
 
     region = editCM:newRegion(
         "rect",
-        click, release,
+        clickSlider, releaseSlider,
         satSlider.x, satSlider.y, gradW, gradH
     )
     region.slider = satSlider
@@ -153,11 +85,11 @@ function love.load(arg)
     rgbDisplay = ColourContainer(550, 50, 100, 100, {0, 0, 1}, "img/rgbFrame.png", true)
     rgbDisplayIcon = love.graphics.newImage("img/rgbDisplay.png")
 
-
     cells = {}
     cellFrame = love.graphics.newImage("img/cellFrame.png")
     selectFrame = love.graphics.newImage("img/selection.png")
-    
+    palSelectFrame = love.graphics.newImage("img/paletteSelection.png")
+
     local clickCell = function(region, x, y, mb)
         if mb == 3 then
             clear(region.cell)
@@ -192,14 +124,14 @@ function love.load(arg)
         cells[i] = {}
 
         for j = 1, gridC do
-            local x, y = gridX + (j-1) * (gridSpacing + cellW),
-            gridY + (i-1) * (gridSpacing + cellH)
+            local x, y = gridX + (j-1) * (gridSpacing + cellSize),
+            gridY + (i-1) * (gridSpacing + cellSize)
 
             local c = ColourContainer(
-                x, y, cellW, cellH,
+                x, y, cellSize, cellSize,
                 {0, 0, 0}, cellFrame
             )
-            local region = editCM:newRegion("rect", clickCell, nop, x, y, cellW, cellH)
+            local region = editCM:newRegion("rect", clickCell, nop, x, y, cellSize, cellSize)
             region.cell = c
             region.row = i
             region.col = j
@@ -207,9 +139,6 @@ function love.load(arg)
             cells[i][j] = c
         end
     end
-    selectedCell = cells[1][1]
-    selectedRow = 1
-    selectedCol = 1
 
     editKL = EventListener()
     editKL:register("up", moveSelection)
@@ -295,24 +224,41 @@ function love.load(arg)
     helpSection3 = love.graphics.newText(fonts[16], helpSection3)
     helpText3 = love.graphics.newText(fonts[12], helpText3)
 
-    helpText2X = math.ceil(gridX + ((gridC+1) * (gridSpacing+cellW)) / 2)
-    helpText3X = math.ceil(gridX + (gridC+2.3) * (gridSpacing+cellW))
-    helpTextY = math.ceil(gridY + (gridR+0.6) * (gridSpacing+cellH))
-    helpSectionY = math.ceil(gridY + (gridR-0.2) * (gridSpacing+cellH))
+    helpText2X = math.ceil(gridX + ((gridC+1) * (gridSpacing+cellSize)) / 2)
+    helpText3X = math.ceil(gridX + (gridC+2.3) * (gridSpacing+cellSize))
+    helpTextY = math.ceil(gridY + (gridR+0.6) * (gridSpacing+cellSize))
+    helpSectionY = math.ceil(gridY + (gridR-0.2) * (gridSpacing+cellSize))
 
     love.graphics.setLineWidth(.5)
 
 
-    local testKL = EventListener()
-    testKL:register("1",
-                    function()
-                        guiController:setMode("edit")
-                    end
-                    )
 
 
     guiController = ModeController(
         {
+            select = {
+                __enter = function(controller, prevState, pal)
+                    palettes = {}
+                    palettes[1] = {
+                        img = newPaletteIcon,
+                        val = nil
+                    }
+
+                    -- TODO find all palettes and put them in the list
+                end,
+                draw = function()
+                    for i = 1, #palettes do
+                        local img = palettes[i].img
+                        local s = paletteSize / img:getWidth()
+                        local x = palettesX + ((i-1)%palettesC) * (palettesSpacing+paletteSize)
+                        local y = palettesY + math.floor((i-1)/palettesC) * (palettesSpacing+paletteSize)
+                        love.graphics.draw(img, x, y, 0, s, s)
+                    end
+                end,
+                mousepressed = function()
+                    guiController:setMode("edit")
+                end
+            },
             edit = {
                 __enter = function(controller, prevState, pal)
                     if pal then
@@ -329,7 +275,7 @@ function love.load(arg)
                             end
                         end
                     end
-                    updateColours()
+                    selectCell(1, 1)
                 end,
                 draw = function()
                     local h, s, v = getHSV()
@@ -387,15 +333,9 @@ function love.load(arg)
                 end,
                 keyListener = editKL,
                 clickmap = editCM
-            }, -- END EDIT MDOE DEF
-            test = {
-                draw = function()
-                    love.graphics.print("test mode")
-                end,
-                keyListener = testKL
-            }
+            } -- END EDIT MDOE DEF
         },
-        "test"
+        "select"
     )
 end
 
@@ -433,6 +373,87 @@ function love.keypressed(k)
     end
 end
 
+
+function initHSVSliders()
+    hueGradientData = love.image.newImageData(gradW, gradH)
+    hueGradientData:mapPixel(
+        function(x, y, r, g, b, a)
+            local h = x/gradW * 360
+
+            return HSV.toRGB(h, 1, 1)
+        end
+    )
+    hueGradient = love.graphics.newImage(hueGradientData)
+
+    valGradientData = love.image.newImageData(gradW, gradH)
+    valGradientData:mapPixel(
+        function(x, y, r, g, b, a)
+            local l = x / gradW
+
+            return HSV.toRGB(0, 0, l)
+        end
+    )
+    valGradient = love.graphics.newImage(valGradientData)
+
+    satGradientData = love.image.newImageData(gradW, gradH)
+    satGradientData:mapPixel(
+        function(x, y, r, g, b, a)
+            local s = x/gradW
+
+            return HSV.toRGB(0, s, 1)
+        end
+    )
+    satGradient = love.graphics.newImage(satGradientData)
+
+    sliderController = ModeController(
+        {
+            normal = {
+                updateCursor = function() end
+            },
+            grab = {
+                __enter = function(controller, prev, s)
+                    sliderController.slider = s
+                end,
+                __exit = function()
+                    sliderController.slider = nil
+                end,
+                updateCursor = function(x)
+                    if sliderController.slider then
+                        sliderController.slider:setCursorPos(x, 0)
+                        updateGradients()
+                    end
+                end
+            }
+        },
+        "normal"
+    )
+    sliderCursorImg = love.graphics.newImage("img/cursor.png")
+    hueSlider = Slider(
+        hueGradient,
+        sliderCursorImg,
+        -sliderCursorImg:getWidth()/2,
+        -sliderCursorImg:getHeight()/8
+    )
+    hueSlider.x, hueSlider.y = 500, 200
+
+    valSlider = Slider(
+        valGradient,
+        sliderCursorImg,
+        -sliderCursorImg:getWidth()/2,
+        -sliderCursorImg:getHeight()/8
+    )
+    valSlider.x, valSlider.y = 500, 300
+    valSlider:setPercent(1)
+
+    satSlider = Slider(
+        satGradient,
+        sliderCursorImg,
+        -sliderCursorImg:getWidth()/2,
+        -sliderCursorImg:getHeight()/8
+    )
+    satSlider.x, satSlider.y = 500, 250
+    satSlider:setPercent(0)
+end
 
 
 function getHSV()
