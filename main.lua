@@ -1,9 +1,10 @@
-local HSV = require "hsv"
-local Slider = require "slider"
-local ClickMap = require "clickmap"
-local ModeController = require "modecontroller"
-local ColourContainer = require "colourcontainer"
-local EventListener = require "eventlistener"
+local HSV = require "util/hsv"
+local ModeController = require "util/modecontroller"
+local EventListener = require "util/eventlistener"
+
+local Slider = require "ui/slider"
+local ClickMap = require "ui/clickmap"
+local ColourContainer = require "ui/colourcontainer"
 
 local DEFAULT_FILE_NAME = "palette.png"
 

@@ -1,4 +1,4 @@
-local HSV = require "hsv"
+local HSV = require "../util/hsv"
 
 local ColourContainer = {}
 ColourContainer.__index = ColourContainer
