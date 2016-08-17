@@ -232,6 +232,25 @@ function love.load(arg)
     love.graphics.setLineWidth(.5)
 
 
+    local selectCM = ClickMap()
+    local clickPalette = function(r, x, y)
+        if r.idx <= #palettes then
+            guiController:setMode("edit", palettes[r.idx].val)
+        end
+    end
+
+    for i = 1, palettesR do
+        for j = 1, palettesC do
+            region = selectCM:newRegion(
+                "rect",
+                clickPalette, nop,
+                palettesX + (j-1) * (palettesSpacing+paletteSize),
+                palettesY + (i-1) * (palettesSpacing+paletteSize),
+                paletteSize, paletteSize
+            )
+            region.idx = (i-1)*palettesC + j
+        end
+    end
 
 
     guiController = ModeController(
@@ -255,9 +274,7 @@ function love.load(arg)
                         love.graphics.draw(img, x, y, 0, s, s)
                     end
                 end,
-                mousepressed = function()
-                    guiController:setMode("edit")
-                end
+                clickmap = selectCM
             },
             edit = {
                 __enter = function(controller, prevState, pal)
@@ -331,7 +348,7 @@ function love.load(arg)
                     x = math.max(0, math.min(x, gradW - 1))
                     sliderController.updateCursor(x)
                 end,
-                keyListener = editKL,
+                keylistener = editKL,
                 clickmap = editCM
             } -- END EDIT MDOE DEF
         },
@@ -368,8 +385,8 @@ function love.mousemoved(x, y, dx, dy)
 end
 
 function love.keypressed(k)
-    if guiController.keyListener then
-        guiController.keyListener:alert(k)
+    if guiController.keylistener then
+        guiController.keylistener:alert(k)
     end
 end
 
