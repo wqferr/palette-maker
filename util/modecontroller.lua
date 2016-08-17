@@ -45,11 +45,11 @@ function ModeController:getMode()
     return self.curMode
 end
 
-function ModeController:setMode(id, arg)
+function ModeController:setMode(id, ...)
     local prev = self.curMode
-    self.modes[self.curMode].__exit(self, id, arg)
+    self.modes[self.curMode].__exit(self, id, ...)
     self.curMode = id
-    self.modes[id].__enter(self, prev, arg)
+    self.modes[id].__enter(self, prev, ...)
 end
 
 setmetatable(ModeController, {
