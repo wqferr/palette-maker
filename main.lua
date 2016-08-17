@@ -305,6 +305,7 @@ function love.load()
                         end
                     end
                     selectCell(1, 1)
+                    updateGradients()
                 end,
                 draw = function()
                     local h, s, v = getHSV()
