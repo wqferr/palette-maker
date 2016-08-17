@@ -24,7 +24,7 @@ local selectedRow, selectedCol
 local selectedCell
 
 local newPaletteIcon
-local cellFrame, selectFrame, palSelectFrame
+local cellFrame, selectFrame, sliderFrame, palSelectFrame
 local rgbDisplay, rgbDisplayIcon
 local hueGradientData, hueGradient
 local satGradientData, satGradient
@@ -89,6 +89,7 @@ function love.load()
     cellFrame = love.graphics.newImage("img/cellFrame.png")
     selectFrame = love.graphics.newImage("img/selection.png")
     palSelectFrame = love.graphics.newImage("img/paletteSelection.png")
+    sliderFrame = love.graphics.newImage("img/sliderFrame.png")
 
     local clickCell = function(region, x, y, mb)
         if mb == 3 then
@@ -314,12 +315,15 @@ function love.load()
 
                     hueSlider:draw(hueSlider.x, hueSlider.y)
                     love.graphics.print(h, hueSlider.x + gradW + 10, hueSlider.y + 8)
+                    love.graphics.draw(sliderFrame, hueSlider.x, hueSlider.y)
 
                     valSlider:draw(valSlider.x, valSlider.y)
                     love.graphics.print(v, valSlider.x + gradW + 10, valSlider.y + 8)
+                    love.graphics.draw(sliderFrame, valSlider.x, valSlider.y)
 
                     satSlider:draw(satSlider.x, satSlider.y)
                     love.graphics.print(s, satSlider.x + gradW + 10, satSlider.y + 8)
+                    love.graphics.draw(sliderFrame, satSlider.x, satSlider.y)
 
                     rgbDisplay:draw()
 
