@@ -47,7 +47,7 @@ local helpText1, helpText2, helpText3
 local helpText2X, helpText3X, helpTextY
 local helpSectionY
 
-function love.load(arg)
+function love.load()
     initHSVSliders()
 
     newPaletteIcon = love.graphics.newImage("img/newPalette.png")
@@ -188,13 +188,6 @@ function love.load(arg)
         [16] = love.graphics.newFont(16)
     }
 
-    if arg[2] then
-        fileName = arg[2]
-        read()
-    else
-        fileName = DEFAULT_FILE_NAME
-    end
-
     helpSection1 = "Arrow controls:"
     helpText1 = "arrows: change selection\n"..
                 "ctrl: increase brightness\n"..
@@ -292,10 +285,11 @@ function love.load(arg)
                     end
                 end,
                 clickmap = selectCM
-            },
+            }, -- END SELECT MODE DEF
             edit = {
                 __enter = function(controller, prevState, img, imgName)
-                    if img then
+                    fileName = imgName or "palette.png"
+                    if imgName then
                         local imgData = img:getData()
                         for i = 1, gridR do
                             for j = 1, gridC do
@@ -629,14 +623,6 @@ nextCell = {
         end
     end
 }
-setmetatable(
-    nextCell,
-    {
-        __call = function(t, r, c, k)
-            return t[k](r, c)
-        end
-    }
-)
 
 function moveSelection(direction)
     local r0, c0 = selectedRow, selectedCol
@@ -719,23 +705,6 @@ end
 
 function dist(r1, c1, r2, c2)
     return math.abs(r2-r1) + math.abs(c2-c1)
-end
-
-function read()
-    if love.filesystem.exists(fileName) then
-        local data, err = love.filesystem.newFileData(fileName)
-        if data then
-            local paletteData = love.image.newImageData(data)
-            paletteData:mapPixel(
-                function(x, y, r, g, b, a)
-                    cells[y+1][x+1]:setRGB(r, g, b)
-                    return r, g, b
-                end
-            )
-        else
-            love.window.showMessageBox("Error reading file", "The palette could not be recovered", "error")
-        end
-    end
 end
 
 function save()
