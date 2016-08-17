@@ -18,10 +18,12 @@ local paletteSize = 64
 local palettesR, palettesC = 8, 8
 local palettesX = 40
 local palettesY = 100 + palettesX
-local palettesSpacing = math.ceil((love.graphics.getWidth() - (2*palettesX + palettesC*paletteSize)) / (palettesC-1))
+local palettesSpacing = (love.graphics.getWidth() - (2*palettesX + palettesC*paletteSize)) / (palettesC-1)
 
 local selectedRow, selectedCol
 local selectedCell
+
+local selectedPalIdx
 
 local newPaletteIcon
 local cellFrame, selectFrame, sliderFrame, palSelectFrame
@@ -99,15 +101,15 @@ function love.load()
 
             if mb == 1 then
                 if love.keyboard.isDown("lctrl")
-                    or love.keyboard.isDown("rctrl") then
-                        local hs, ss, vs = selectedCell:getHSV()
-                        local dh, ds, dv = h - hs, s - ss, v - vs
-                        hs, ss, vs = hs + dh/10, ss + ds/10, vs + dv/10
+                        or love.keyboard.isDown("rctrl") then
+                    local hs, ss, vs = selectedCell:getHSV()
+                    local dh, ds, dv = h - hs, s - ss, v - vs
+                    hs, ss, vs = hs + dh/10, ss + ds/10, vs + dv/10
 
-                        hs = (hs + dh/10) % 360
-                        ss = math.max(0, math.min(1, ss + ds/10))
-                        vs = math.max(0, math.min(1, vs + dv/10))
-                        selectedCell:setHSV(hs, ss, vs)
+                    hs = (hs + dh/10) % 360
+                    ss = math.max(0, math.min(1, ss + ds/10))
+                    vs = math.max(0, math.min(1, vs + dv/10))
+                    selectedCell:setHSV(hs, ss, vs)
                 else
                     selectCell(region.row, region.col)
                 end
@@ -126,7 +128,7 @@ function love.load()
 
         for j = 1, gridC do
             local x, y = gridX + (j-1) * (gridSpacing + cellSize),
-            gridY + (i-1) * (gridSpacing + cellSize)
+                         gridY + (i-1) * (gridSpacing + cellSize)
 
             local c = ColourContainer(
                 x, y, cellSize, cellSize,
@@ -150,11 +152,11 @@ function love.load()
     editKL:register("=",
                          function()
                              if love.keyboard.isDown("lctrl")
-                                 or love.keyboard.isDown("rctrl") then
-                                     saturate()
+                                     or love.keyboard.isDown("rctrl") then
+                                 saturate()
                              elseif love.keyboard.isDown("lalt") 
-                                 or love.keyboard.isDown("ralt") then
-                                     increaseHue()
+                                     or love.keyboard.isDown("ralt") then
+                                 increaseHue()
                              else
                                  lighten()
                              end
@@ -164,11 +166,11 @@ function love.load()
     editKL:register("-",
                          function()
                              if love.keyboard.isDown("lctrl")
-                                 or love.keyboard.isDown("rctrl") then
-                                desaturate()
+                                     or love.keyboard.isDown("rctrl") then
+                                 desaturate()
                              elseif love.keyboard.isDown("lalt") 
-                                 or love.keyboard.isDown("ralt") then
-                                decreaseHue()
+                                     or love.keyboard.isDown("ralt") then
+                                 decreaseHue()
                             else
                                 darken()
                             end
@@ -178,7 +180,7 @@ function love.load()
     editKL:register("s",
                          function()
                              if love.keyboard.isDown("lctrl")
-                                 or love.keyboard.isDown("rctrl") then
+                                     or love.keyboard.isDown("rctrl") then
                                  save()
                              end
                          end
@@ -257,6 +259,7 @@ function love.load()
                         img = newPaletteIcon,
                         val = nil
                     }
+                    selectedPalIdx = 0
 
                     local items = love.filesystem.getDirectoryItems("")
                     for _, item in pairs(items) do
@@ -277,15 +280,38 @@ function love.load()
                     end
                 end,
                 draw = function()
-                    for i = 1, #palettes do
-                        local img = palettes[i].img
+                    local img = palettes[1].img
+                    love.graphics.draw(img, palettesX, palettesY)
+                    love.graphics.printf("new", palettesX, palettesY + paletteSize + 10, paletteSize, "center")
+
+                    for i = 2, #palettes do
+                        img = palettes[i].img
                         local s = paletteSize / img:getWidth()
                         local x = palettesX + ((i-1)%palettesC) * (palettesSpacing+paletteSize)
                         local y = palettesY + math.floor((i-1)/palettesC) * (palettesSpacing+paletteSize)
                         love.graphics.draw(img, x, y, 0, s, s)
+
+                        local text = palettes[i].val:sub(1, -5)
+
+                        love.graphics.printf(text, x, y + paletteSize + 10, paletteSize, "center")
+                    end
+
+                    if selectedPalIdx > 0 then
+                        local i = selectedPalIdx
+                        local x = palettesX + ((i-1)%palettesC) * (palettesSpacing+paletteSize) - 5
+                        local y = palettesY + math.floor((i-1)/palettesC) * (palettesSpacing+paletteSize) - 5
+                        love.graphics.draw(palSelectFrame, x, y)
                     end
                 end,
-                clickmap = selectCM
+                clickmap = selectCM,
+                mousemoved = function(x, y)
+                    local r = selectCM:check(x, y) 
+                    if r and r.idx <= #palettes then
+                        selectedPalIdx = r.idx
+                    else
+                        selectedPalIdx = 0
+                    end
+                end
             }, -- END SELECT MODE DEF
             edit = {
                 __enter = function(controller, prevState, img, imgName)
