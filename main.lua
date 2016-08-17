@@ -25,8 +25,9 @@ local valGradientData, valGradient
 local sliderCursorImg
 local hueSlider, satSlider, valSlider
 
-local keyListener
-local sliderController, cellController
+local guiController
+
+local sliderController
 
 local cells
 
@@ -75,8 +76,8 @@ function love.load(arg)
                 updateCursor = function() end
             },
             grab = {
-                __enter = function(controller, p)
-                    sliderController.slider = p
+                __enter = function(controller, prev, s)
+                    sliderController.slider = s
                 end,
                 __exit = function()
                     sliderController.slider = nil
@@ -119,7 +120,7 @@ function love.load(arg)
     satSlider.x, satSlider.y = 500, 250
     satSlider:setPercent(0)
 
-    clickmap = ClickMap()
+    local editCM = ClickMap()
 
     local click = function(r, x, y)
         sliderController:setMode("grab", r.slider)
@@ -128,21 +129,21 @@ function love.load(arg)
         sliderController:setMode("normal")
     end
 
-    local region = clickmap:newRegion(
+    local region = editCM:newRegion(
         "rect",
         click, release,
         hueSlider.x, hueSlider.y, gradW, gradH
     )
     region.slider = hueSlider
 
-    region = clickmap:newRegion(
+    region = editCM:newRegion(
         "rect",
         click, release,
         valSlider.x, valSlider.y, gradW, gradH
     )
     region.slider = valSlider
 
-    region = clickmap:newRegion(
+    region = editCM:newRegion(
         "rect",
         click, release,
         satSlider.x, satSlider.y, gradW, gradH
@@ -192,13 +193,13 @@ function love.load(arg)
 
         for j = 1, gridC do
             local x, y = gridX + (j-1) * (gridSpacing + cellW),
-                         gridY + (i-1) * (gridSpacing + cellH)
+            gridY + (i-1) * (gridSpacing + cellH)
 
             local c = ColourContainer(
                 x, y, cellW, cellH,
-                {0, 0, 1}, cellFrame
+                {0, 0, 0}, cellFrame
             )
-            local region = clickmap:newRegion("rect", clickCell, nop, x, y, cellW, cellH)
+            local region = editCM:newRegion("rect", clickCell, nop, x, y, cellW, cellH)
             region.cell = c
             region.row = i
             region.col = j
@@ -210,14 +211,13 @@ function love.load(arg)
     selectedRow = 1
     selectedCol = 1
 
-
-    keyListener = EventListener()
-    keyListener:register("up", moveSelection)
-    keyListener:register("down", moveSelection)
-    keyListener:register("left", moveSelection)
-    keyListener:register("right", moveSelection)
-    keyListener:register("delete", function(...) clear() end)
-    keyListener:register("=",
+    editKL = EventListener()
+    editKL:register("up", moveSelection)
+    editKL:register("down", moveSelection)
+    editKL:register("left", moveSelection)
+    editKL:register("right", moveSelection)
+    editKL:register("delete", function(...) clear() end)
+    editKL:register("=",
                          function()
                              if love.keyboard.isDown("lctrl")
                                  or love.keyboard.isDown("rctrl") then
@@ -231,7 +231,7 @@ function love.load(arg)
                              updateColours()
                          end
                      )
-    keyListener:register("-",
+    editKL:register("-",
                          function()
                              if love.keyboard.isDown("lctrl")
                                  or love.keyboard.isDown("rctrl") then
@@ -245,7 +245,7 @@ function love.load(arg)
                             updateColours()
                          end
                      )
-    keyListener:register("s",
+    editKL:register("s",
                          function()
                              if love.keyboard.isDown("lctrl")
                                  or love.keyboard.isDown("rctrl") then
@@ -301,71 +301,136 @@ function love.load(arg)
     helpSectionY = math.ceil(gridY + (gridR-0.2) * (gridSpacing+cellH))
 
     love.graphics.setLineWidth(.5)
+
+
+    local testKL = EventListener()
+    testKL:register("1",
+                    function()
+                        guiController:setMode("edit")
+                    end
+                    )
+
+
+    guiController = ModeController(
+        {
+            edit = {
+                __enter = function(controller, prevState, pal)
+                    if pal then
+                        local imgData = love.image.newImageData(pal)
+                        for i = 1, gridR do
+                            for j = 1, gridC do
+                                cells[i][j]:setRGB(imgData:getPixel(j-1, i-1))
+                            end
+                        end
+                    else
+                        for i = 1, gridR do
+                            for j = 1, gridC do
+                                cells[i][j]:setHSV(0, 0, 0)
+                            end
+                        end
+                    end
+                    updateColours()
+                end,
+                draw = function()
+                    local h, s, v = getHSV()
+
+                    h = ("H: %d"):format(h)
+                    s = ("S: %.2f"):format(s)
+                    v = ("V: %.2f"):format(v)
+
+                    hueSlider:draw(hueSlider.x, hueSlider.y)
+                    love.graphics.print(h, hueSlider.x + gradW + 10, hueSlider.y + 8)
+
+                    valSlider:draw(valSlider.x, valSlider.y)
+                    love.graphics.print(v, valSlider.x + gradW + 10, valSlider.y + 8)
+
+                    satSlider:draw(satSlider.x, satSlider.y)
+                    love.graphics.print(s, satSlider.x + gradW + 10, satSlider.y + 8)
+
+                    rgbDisplay:draw()
+
+                    local rgb = ("RGB: %d, %d, %d"):format(getRGB())
+                    local w = love.graphics.getFont():getWidth(rgb)
+                    love.graphics.print(rgb, rgbDisplay.x + (rgbDisplay.w-w)/2, rgbDisplay.y + rgbDisplay.h)
+
+                    for i, row in ipairs(cells) do
+                        for j, cell in ipairs(row) do
+                            cell:draw()
+                        end
+                    end
+
+                    if selectedCell then
+                        love.graphics.draw(selectFrame, selectedCell.x - 5, selectedCell.y - 5)
+                    end
+
+                    love.graphics.draw(helpSection1, gridX, helpSectionY)
+                    love.graphics.draw(helpText1, gridX, helpTextY)
+
+                    love.graphics.draw(helpSection2, helpText2X, helpSectionY)
+                    love.graphics.draw(helpText2, helpText2X, helpTextY)
+
+                    love.graphics.draw(helpSection3, helpText3X, helpSectionY)
+                    love.graphics.draw(helpText3, helpText3X, helpTextY)
+
+                    love.graphics.setColor(150, 150, 150)
+                    love.graphics.line(gridX - 10, helpTextY-2, helpText3X + helpText3:getWidth() + 10, helpTextY-2)
+                    love.graphics.setColor(255, 255, 255)
+                end,
+                mousepressed = function(x, y, mb)
+                    sliderController.updateCursor(x - hueSlider.x)
+                end,
+                mousereleased = function() end,
+                mousemoved = function(x, y, dx, dy)
+                    x = x - hueSlider.x
+                    x = math.max(0, math.min(x, gradW - 1))
+                    sliderController.updateCursor(x)
+                end,
+                keyListener = editKL,
+                clickmap = editCM
+            }, -- END EDIT MDOE DEF
+            test = {
+                draw = function()
+                    love.graphics.print("test mode")
+                end,
+                keyListener = testKL
+            }
+        },
+        "test"
+    )
 end
 
 function love.draw()
-    local h, s, v = getHSV()
-
-    h = ("H: %d"):format(h)
-    s = ("S: %.2f"):format(s)
-    v = ("V: %.2f"):format(v)
-
-    hueSlider:draw(hueSlider.x, hueSlider.y)
-    love.graphics.print(h, hueSlider.x + gradW + 10, hueSlider.y + 8)
-
-    valSlider:draw(valSlider.x, valSlider.y)
-    love.graphics.print(v, valSlider.x + gradW + 10, valSlider.y + 8)
-
-    satSlider:draw(satSlider.x, satSlider.y)
-    love.graphics.print(s, satSlider.x + gradW + 10, satSlider.y + 8)
-
-    rgbDisplay:draw()
-
-    local rgb = ("RGB: %d, %d, %d"):format(getRGB())
-    local w = love.graphics.getFont():getWidth(rgb)
-    love.graphics.print(rgb, rgbDisplay.x + (rgbDisplay.w-w)/2, rgbDisplay.y + rgbDisplay.h)
-
-    for i, row in ipairs(cells) do
-        for j, cell in ipairs(row) do
-            cell:draw()
-        end
-    end
-
-    if selectedCell then
-        love.graphics.draw(selectFrame, selectedCell.x - 5, selectedCell.y - 5)
-    end
-    
-    love.graphics.draw(helpSection1, gridX, helpSectionY)
-    love.graphics.draw(helpText1, gridX, helpTextY)
-
-    love.graphics.draw(helpSection2, helpText2X, helpSectionY)
-    love.graphics.draw(helpText2, helpText2X, helpTextY)
-
-    love.graphics.draw(helpSection3, helpText3X, helpSectionY)
-    love.graphics.draw(helpText3, helpText3X, helpTextY)
-
-    love.graphics.setColor(150, 150, 150)
-    love.graphics.line(gridX - 10, helpTextY-2, helpText3X + helpText3:getWidth() + 10, helpTextY-2)
-    love.graphics.setColor(255, 255, 255)
+    guiController.draw()
 end
 
 function love.mousepressed(x, y, mb)
-    local r = clickmap:click(x, y, mb)
-    sliderController.updateCursor(x - hueSlider.x)
+    if guiController.clickmap then
+        guiController.clickmap:click(x, y, mb)
+    end
+    if guiController.mousepressed then
+        guiController.mousepressed(x, y, mb)
+    end
 end
 
 function love.mousereleased(x, y, mb)
-    clickmap:release(x, y)
+    if guiController.clickmap then
+        guiController.clickmap:release(x, y, mb)
+    end
+    if guiController.mousereleased then
+        guiController.mousereleased(x, y, mb)
+    end
 end
 
-function love.mousemoved(x, y)
-    x = x - hueSlider.x
-    x = math.max(0, math.min(x, gradW - 1))
-    sliderController.updateCursor(x)
+function love.mousemoved(x, y, dx, dy)
+    if guiController.mousemoved then
+        guiController.mousemoved(x, y, dx, dy)
+    end
 end
 
 function love.keypressed(k)
-    keyListener:alert(k)
+    if guiController.keyListener then
+        guiController.keyListener:alert(k)
+    end
 end
 
 
@@ -592,7 +657,7 @@ function nextFilledCell(r, c, direction)
         else
             r, c = nr, nc
         end
-    until not cells[r][c]:isWhite()
+    until not cells[r][c]:isBlack()
 
     return r, c
 end

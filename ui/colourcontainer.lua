@@ -47,9 +47,9 @@ function ColourContainer:setHSV(h, s, v)
     self.colour = {h, s, v}
 end
 
-function ColourContainer:isWhite()
+function ColourContainer:isBlack()
     local h, s, v = self:getHSV()
-    return s == 0 and v == 1
+    return v == 0
 end
 
 function ColourContainer:draw()

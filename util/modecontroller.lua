@@ -26,11 +26,16 @@ function ModeController.new(modes, initMode)
         s.__exit = s.__exit or nop
         mc.modes[id] = s
     end
-    
+
     if initMode == nil then
-        mc.curMode = next(o.modes)
+        mc.curMode = next(mc.modes)
     else
         mc.curMode = initMode
+    end
+
+    local m = mc.modes[mc.curMode]
+    if m.__enter then
+        m.__enter(mc)
     end
 
     return mc
@@ -41,9 +46,10 @@ function ModeController:getMode()
 end
 
 function ModeController:setMode(id, arg)
+    local prev = self.curMode
     self.modes[self.curMode].__exit(self, id, arg)
-    self.modes[id].__enter(self, arg)
     self.curMode = id
+    self.modes[id].__enter(self, prev, arg)
 end
 
 setmetatable(ModeController, {
