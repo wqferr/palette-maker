@@ -46,6 +46,7 @@ local fileName
 local fonts
 local helpSection1, helpSection2, helpSection3
 local helpText1, helpText2, helpText3
+local helpShow
 local helpText2X, helpText3X, helpTextY
 local helpSectionY
 
@@ -224,6 +225,8 @@ function love.load()
         [16] = love.graphics.newFont(16)
     }
 
+    helpShow = love.graphics.newText(love.graphics.getFont(), "press h for help")
+
     helpSection1 = "Arrow controls:"
     helpText1 = "arrows: change selection\n"..
                 "ctrl: increase brightness\n"..
@@ -244,7 +247,8 @@ function love.load()
                 "+/-: change brightness\n"..
                 "ctrl + +/-: change saturation\n"..
                 "alt + +/-: change hue\n"..
-                "delete: reset selection S and V"
+                "delete: reset selection S and V\n"..
+                "h: show/hide help"
 
     helpSection1 = love.graphics.newText(fonts[16], helpSection1)
     helpText1 = love.graphics.newText(fonts[12], helpText1)
@@ -402,6 +406,7 @@ function love.load()
                     end
 
                     if help then
+                        love.graphics.line(gridX - 10, helpTextY-2, helpText3X + helpText3:getWidth() + 10, helpTextY-2)
                         love.graphics.draw(helpSection1, gridX, helpSectionY)
                         love.graphics.draw(helpText1, gridX, helpTextY)
 
@@ -410,6 +415,8 @@ function love.load()
 
                         love.graphics.draw(helpSection3, helpText3X, helpSectionY)
                         love.graphics.draw(helpText3, helpText3X, helpTextY)
+                    else
+                        love.graphics.draw(helpShow, gridX, helpSectionY)
                     end
 
                     local c = {love.graphics.getColor()}
@@ -428,7 +435,6 @@ function love.load()
                     love.graphics.setColor(c)
 
                     love.graphics.setColor(150, 150, 150)
-                    love.graphics.line(gridX - 10, helpTextY-2, helpText3X + helpText3:getWidth() + 10, helpTextY-2)
                     love.graphics.setColor(255, 255, 255)
                 end,
                 mousepressed = function(x, y, mb)
