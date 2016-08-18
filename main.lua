@@ -407,8 +407,16 @@ function love.load()
                         end
                     end
 
-                    if selectedCell then
-                        love.graphics.draw(selectFrame, selectedCell.x - 5, selectedCell.y - 5)
+                    love.graphics.draw(selectFrame, selectedCell.x - 5, selectedCell.y - 5)
+                    local c = {love.graphics.getColor()}
+
+                    local hoveredCell = editCM:check(love.mouse.getX(), love.mouse.getY())
+                    if hoveredCell and hoveredCell.cell then
+                        local frameColour = {love.graphics.getColor()}
+                        frameColour[4] = 100
+                        love.graphics.setColor(frameColour)
+                        love.graphics.draw(selectFrame, hoveredCell.cell.x - 5, hoveredCell.cell.y - 5)
+                        love.graphics.setColor(c)
                     end
 
                     if help then
@@ -425,7 +433,6 @@ function love.load()
                         love.graphics.draw(helpShow, gridX, helpSectionY)
                     end
 
-                    local c = {love.graphics.getColor()}
                     if editController:getMode() == "name" then
                         love.graphics.setColor(200, 200, 200)
                         love.graphics.rectangle("fill", gridX, 18, gridC*(gridSpacing+cellSize), 20)
