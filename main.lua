@@ -44,6 +44,8 @@ local palettes
 local fileName
 
 local fonts
+
+local saveDirText
 local helpSection1, helpSection2, helpSection3
 local helpText1, helpText2, helpText3
 local helpShow
@@ -96,7 +98,7 @@ function love.load()
             editController:setMode("name")
         end,
         nop,
-        gridX, 15, gridC*(gridSpacing+cellSize), 20
+        gridX, 18, gridC*(gridSpacing+cellSize), 20
     )
 
     rgbDisplay = ColourContainer(550, 50, 100, 100, {0, 0, 1}, "img/rgbFrame.png", true)
@@ -224,6 +226,10 @@ function love.load()
         [12] = love.graphics.getFont(),
         [16] = love.graphics.newFont(16)
     }
+
+    saveDirText = love.graphics.newText(
+        love.graphics.getFont(), "Save directory: "..love.filesystem.getSaveDirectory()
+    )
 
     helpShow = love.graphics.newText(love.graphics.getFont(), "press h for help")
 
@@ -422,16 +428,17 @@ function love.load()
                     local c = {love.graphics.getColor()}
                     if editController:getMode() == "name" then
                         love.graphics.setColor(200, 200, 200)
-                        love.graphics.rectangle("fill", gridX, 15, gridC*(gridSpacing+cellSize), 20)
+                        love.graphics.rectangle("fill", gridX, 18, gridC*(gridSpacing+cellSize), 20)
                         love.graphics.setColor(0, 0, 0)
                     end
 
+                    love.graphics.draw(saveDirText, gridX, 2)
                     love.graphics.setFont(fonts[16])
                     love.graphics.printf(fileName,
-                                         gridX, 15, 
+                                         gridX, 15,
                                          gridC*(gridSpacing+cellSize), "center")
                     love.graphics.setFont(fonts[12])
-                    love.graphics.rectangle("line", gridX, 15, gridC*(gridSpacing+cellSize), 20)
+                    love.graphics.rectangle("line", gridX, 18, gridC*(gridSpacing+cellSize), 20)
                     love.graphics.setColor(c)
 
                     love.graphics.setColor(150, 150, 150)
