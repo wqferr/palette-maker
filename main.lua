@@ -36,7 +36,7 @@ local hueSlider, satSlider, valSlider
 
 local guiController
 
-local sliderController
+local editController
 
 local cells
 local palettes
@@ -49,6 +49,8 @@ local helpText1, helpText2, helpText3
 local helpText2X, helpText3X, helpTextY
 local helpSectionY
 
+local nop = function() end
+
 function love.load()
     initHSVSliders()
 
@@ -57,10 +59,10 @@ function love.load()
     local editCM = ClickMap()
 
     local clickSlider = function(r, x, y)
-        sliderController:setMode("grab", r.slider)
+        editController:setMode("grab", r.slider)
     end
     local releaseSlider = function(r, x, y)
-        sliderController:setMode("normal")
+        editController:setMode("normal")
     end
 
     local region = editCM:newRegion(
@@ -83,6 +85,16 @@ function love.load()
         satSlider.x, satSlider.y, gradW, gradH
     )
     region.slider = satSlider
+
+
+    region = editCM:newRegion(
+        "rect",
+        function()
+            editController:setMode("name")
+        end,
+        nop,
+        gridX, 15, gridC*(gridSpacing+cellSize), 20
+    )
 
     rgbDisplay = ColourContainer(550, 50, 100, 100, {0, 0, 1}, "img/rgbFrame.png", true)
     rgbDisplayIcon = love.graphics.newImage("img/rgbDisplay.png")
@@ -121,8 +133,6 @@ function love.load()
         updateColours()
     end
 
-    local nop = function() end
-
     for i = 1, gridR do
         cells[i] = {}
 
@@ -151,6 +161,9 @@ function love.load()
     editKL:register("delete", function(...) clear() end)
     editKL:register("=",
                          function()
+                             if editController:getMode() == "name" then
+                                 return
+                             end
                              if love.keyboard.isDown("lctrl")
                                      or love.keyboard.isDown("rctrl") then
                                  saturate()
@@ -165,6 +178,9 @@ function love.load()
                      )
     editKL:register("-",
                          function()
+                             if editController:getMode() == "name" then
+                                 return
+                             end
                              if love.keyboard.isDown("lctrl")
                                      or love.keyboard.isDown("rctrl") then
                                  desaturate()
@@ -179,9 +195,19 @@ function love.load()
                      )
     editKL:register("s",
                          function()
+                             if editController:getMode() == "name" then
+                                 return
+                             end
                              if love.keyboard.isDown("lctrl")
                                      or love.keyboard.isDown("rctrl") then
                                  save()
+                             end
+                         end
+                    )
+    editKL:register("escape",
+                         function()
+                             if editController:getMode() == "normal" then
+                                 guiController:setMode("select")
                              end
                          end
                     )
@@ -272,7 +298,7 @@ function love.load()
                                     palettes,
                                     {
                                         img = love.graphics.newImage(data),
-                                        val = item
+                                        val = item:sub(1, -5)
                                     }
                                 )
                             end
@@ -288,18 +314,18 @@ function love.load()
                         img = palettes[i].img
                         local s = paletteSize / img:getWidth()
                         local x = palettesX + ((i-1)%palettesC) * (palettesSpacing+paletteSize)
-                        local y = palettesY + math.floor((i-1)/palettesC) * (palettesSpacing+paletteSize)
+                        local y = palettesY + math.floor((i-1)/palettesC) * (palettesSpacing+paletteSize+15)
                         love.graphics.draw(img, x, y, 0, s, s)
 
-                        local text = palettes[i].val:sub(1, -5)
+                        local text = palettes[i].val
 
-                        love.graphics.printf(text, x, y + paletteSize + 10, paletteSize, "center")
+                        love.graphics.printf(text, x, y + paletteSize + 5, paletteSize, "center")
                     end
 
                     if selectedPalIdx > 0 then
                         local i = selectedPalIdx
                         local x = palettesX + ((i-1)%palettesC) * (palettesSpacing+paletteSize) - 5
-                        local y = palettesY + math.floor((i-1)/palettesC) * (palettesSpacing+paletteSize) - 5
+                        local y = palettesY + math.floor((i-1)/palettesC) * (palettesSpacing+paletteSize+15) - 5
                         love.graphics.draw(palSelectFrame, x, y)
                     end
                 end,
@@ -315,7 +341,7 @@ function love.load()
             }, -- END SELECT MODE DEF
             edit = {
                 __enter = function(controller, prevState, img, imgName)
-                    fileName = imgName or "palette.png"
+                    fileName = imgName or "palette"
                     if imgName then
                         local imgData = img:getData()
                         for i = 1, gridR do
@@ -368,27 +394,51 @@ function love.load()
                         love.graphics.draw(selectFrame, selectedCell.x - 5, selectedCell.y - 5)
                     end
 
-                    love.graphics.draw(helpSection1, gridX, helpSectionY)
-                    love.graphics.draw(helpText1, gridX, helpTextY)
+                    if help then
+                        love.graphics.draw(helpSection1, gridX, helpSectionY)
+                        love.graphics.draw(helpText1, gridX, helpTextY)
 
-                    love.graphics.draw(helpSection2, helpText2X, helpSectionY)
-                    love.graphics.draw(helpText2, helpText2X, helpTextY)
+                        love.graphics.draw(helpSection2, helpText2X, helpSectionY)
+                        love.graphics.draw(helpText2, helpText2X, helpTextY)
 
-                    love.graphics.draw(helpSection3, helpText3X, helpSectionY)
-                    love.graphics.draw(helpText3, helpText3X, helpTextY)
+                        love.graphics.draw(helpSection3, helpText3X, helpSectionY)
+                        love.graphics.draw(helpText3, helpText3X, helpTextY)
+                    end
+
+                    love.graphics.setFont(fonts[16])
+                    love.graphics.printf(fileName,
+                                         gridX, 15, 
+                                         gridC*(gridSpacing+cellSize), "center")
+                    love.graphics.setFont(fonts[12])
+                    love.graphics.rectangle("line", gridX, 15, gridC*(gridSpacing+cellSize), 20)
 
                     love.graphics.setColor(150, 150, 150)
                     love.graphics.line(gridX - 10, helpTextY-2, helpText3X + helpText3:getWidth() + 10, helpTextY-2)
                     love.graphics.setColor(255, 255, 255)
                 end,
                 mousepressed = function(x, y, mb)
-                    sliderController.updateCursor(x - hueSlider.x)
+                    editController.updateCursor(x - hueSlider.x)
                 end,
                 mousereleased = function() end,
                 mousemoved = function(x, y, dx, dy)
                     x = x - hueSlider.x
                     x = math.max(0, math.min(x, gradW - 1))
-                    sliderController.updateCursor(x)
+                    editController.updateCursor(x)
+                end,
+                keypressed = function(k)
+                    if editController:getMode() == "name" then
+                        if k == "backspace" then
+                            fileName = fileName:sub(1, -2)
+                        elseif k == "return" then
+                            editController:setMode("normal")
+                        elseif #k == 1 and "a" <= k and k <= "z" then
+                            if love.keyboard.isDown("lshift")
+                                    or love.keyboard.isDown("rshift") then
+                                k = k:upper()
+                            end
+                            fileName = fileName..k
+                        end
+                    end
                 end,
                 keylistener = editKL,
                 clickmap = editCM
@@ -430,6 +480,9 @@ function love.keypressed(k)
     if guiController.keylistener then
         guiController.keylistener:alert(k)
     end
+    if guiController.keypressed then
+        guiController.keypressed(k)
+    end
 end
 
 
@@ -464,21 +517,24 @@ function initHSVSliders()
     )
     satGradient = love.graphics.newImage(satGradientData)
 
-    sliderController = ModeController(
+    editController = ModeController(
         {
             normal = {
                 updateCursor = function() end
             },
+            name = {
+                updateCursor = function() end
+            },
             grab = {
                 __enter = function(controller, prev, s)
-                    sliderController.slider = s
+                    editController.slider = s
                 end,
                 __exit = function()
-                    sliderController.slider = nil
+                    editController.slider = nil
                 end,
                 updateCursor = function(x)
-                    if sliderController.slider then
-                        sliderController.slider:setCursorPos(x, 0)
+                    if editController.slider then
+                        editController.slider:setCursorPos(x, 0)
                         updateGradients()
                     end
                 end
@@ -573,11 +629,13 @@ function updateColours()
 end
 
 function clear(cell)
-    cell = cell or selectedCell
+    if editController:getMode() ~= "name" then
+        cell = cell or selectedCell
 
-    cell:setHSV(nil, 0, 1)
-    if cell == selectedCell then
-        updateSliders()
+        cell:setHSV(nil, 0, 1)
+        if cell == selectedCell then
+            updateSliders()
+        end
     end
 end
 
@@ -656,6 +714,9 @@ nextCell = {
 }
 
 function moveSelection(direction)
+    if editController:getMode() == "name" then
+        return false
+    end
     local r0, c0 = selectedRow, selectedCol
     local nxt = nextCell[direction]
     local r1, c1 = nxt(selectedRow, selectedCol)
@@ -745,5 +806,5 @@ function save()
             return cells[y+1][x+1]:getRGB()
         end
     )
-    paletteData:encode("png", fileName)
+    paletteData:encode("png", fileName..".png")
 end
