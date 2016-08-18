@@ -49,6 +49,8 @@ local helpText1, helpText2, helpText3
 local helpText2X, helpText3X, helpTextY
 local helpSectionY
 
+local help = true
+
 local nop = function() end
 
 function love.load()
@@ -202,6 +204,11 @@ function love.load()
                                      or love.keyboard.isDown("rctrl") then
                                  save()
                              end
+                         end
+                    )
+    editKL:register("h",
+                         function()
+                             help = not help
                          end
                     )
     editKL:register("escape",
@@ -405,12 +412,20 @@ function love.load()
                         love.graphics.draw(helpText3, helpText3X, helpTextY)
                     end
 
+                    local c = {love.graphics.getColor()}
+                    if editController:getMode() == "name" then
+                        love.graphics.setColor(200, 200, 200)
+                        love.graphics.rectangle("fill", gridX, 15, gridC*(gridSpacing+cellSize), 20)
+                        love.graphics.setColor(0, 0, 0)
+                    end
+
                     love.graphics.setFont(fonts[16])
                     love.graphics.printf(fileName,
                                          gridX, 15, 
                                          gridC*(gridSpacing+cellSize), "center")
                     love.graphics.setFont(fonts[12])
                     love.graphics.rectangle("line", gridX, 15, gridC*(gridSpacing+cellSize), 20)
+                    love.graphics.setColor(c)
 
                     love.graphics.setColor(150, 150, 150)
                     love.graphics.line(gridX - 10, helpTextY-2, helpText3X + helpText3:getWidth() + 10, helpTextY-2)
