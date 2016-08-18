@@ -442,7 +442,7 @@ function love.load()
                     love.graphics.draw(saveDirText, gridX, 2)
                     love.graphics.setFont(fonts[16])
                     love.graphics.printf(fileName,
-                                         gridX, 15,
+                                         gridX, 18,
                                          gridC*(gridSpacing+cellSize), "center")
                     love.graphics.setFont(fonts[12])
                     love.graphics.rectangle("line", gridX, 18, gridC*(gridSpacing+cellSize), 20)
@@ -667,9 +667,9 @@ function clear(cell)
     if editController:getMode() ~= "name" then
         cell = cell or selectedCell
 
-        cell:setHSV(nil, 0, 1)
+        cell:setHSV(nil, 0, 0)
         if cell == selectedCell then
-            updateSliders()
+            updateColours()
         end
     end
 end
