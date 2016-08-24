@@ -211,7 +211,9 @@ function love.load()
                     )
     editKL:register("h",
                          function()
-                             help = not help
+                             if editController:getMode() ~= "name" then
+                                 help = not help
+                             end
                          end
                     )
     editKL:register("escape",
@@ -433,13 +435,13 @@ function love.load()
                         love.graphics.draw(helpShow, gridX, helpSectionY)
                     end
 
+                    love.graphics.draw(saveDirText, gridX, 2)
                     if editController:getMode() == "name" then
                         love.graphics.setColor(200, 200, 200)
                         love.graphics.rectangle("fill", gridX, 18, gridC*(gridSpacing+cellSize), 20)
                         love.graphics.setColor(0, 0, 0)
                     end
 
-                    love.graphics.draw(saveDirText, gridX, 2)
                     love.graphics.setFont(fonts[16])
                     love.graphics.printf(fileName,
                                          gridX, 18,
@@ -466,12 +468,22 @@ function love.load()
                             fileName = fileName:sub(1, -2)
                         elseif k == "return" then
                             editController:setMode("normal")
-                        elseif #k == 1 and "a" <= k and k <= "z" then
-                            if love.keyboard.isDown("lshift")
-                                    or love.keyboard.isDown("rshift") then
-                                k = k:upper()
+                        else
+                            local s = ""
+                            local m = k:match("[%-%+%. ]")
+
+                            if #k == 1 and "a" <= k and k <= "z" then
+                                if love.keyboard.isDown("lshift")
+                                        or love.keyboard.isDown("rshift") then
+                                    s = k:upper()
+                                else
+                                    s = k
+                                end
+                            elseif m then
+                                s = m
                             end
-                            fileName = fileName..k
+
+                            fileName = fileName..s
                         end
                     end
                 end,
