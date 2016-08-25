@@ -6,6 +6,51 @@ Made using LÖVE 0.10.1
 This is an application to help make colour palettes, targeted mainly at pixel
 artists.
 
+---
+
+## Pretty important introduction to HSV ##
+If you aren't already familiar with it, you could try to read the
+[wikipedia article](https://en.wikipedia.org/wiki/HSL_and_HSV) on the HSV color
+space. If That was too much math and too little color, here's the TL;DR:
+
+HSV is an alternative to the
+[RGB color space](https://en.wikipedia.org/wiki/RGB_color_model) which tries to
+mimic the human concept of "similar colours". That means that two colours will
+differ little in our perception if they have similar HSV values.
+
+Now on to each of the three letters:
+
+* H:
+
+    Stands for "hue". Basically, "which part of the rainbow" that colour is in.
+
+    Usually represented from 0-359 as if the rainbow was weirdly distorted into
+    a circle and the hue is the angle that represents the colour
+    (blame the ones who came up with this, I just follow conventions).
+
+* S:
+
+    Stands for "saturation". The less saturated a colour is, the closer it is
+    to white.
+
+    Values range from 0 to 1.
+
+* V:
+
+    Stands for "value". Equivalent to brightness in the sense that the lower
+    the value, the darker the color.
+
+#### Some notes on HSV ####
+
+* If any color has 0 saturation, it will be somewhere along the grayscale,
+with the determining factor being the value of the color.
+
+* If any color has 0 value, it will be black independently of hue or saturation.
+
+Now, onto the application.
+
+---
+
 ### How do I install it? ###
 If you already have LÖVE 0.10.1 or higher installed, you can:
 
@@ -30,6 +75,9 @@ palette selection screen. The one white square you see is the button to create
 a new palette, and if there were any saved palettes in the save directory, the
 app would list them side by side with their respective names underneath. Click
 on the palette you want to edit, or the `new` button to create a new palette.
+
+And now that you've entered the real application, I expect you to say something
+along the lines of:
 
 ## TOO MANY BUTTONS, HALP ##
 ### Basic Interface and Commands ###
@@ -82,6 +130,11 @@ The copy command simply copies the H, S and V values into the next cell.
 The best way to understand these commands is to just mess around with some
 colours and see what happens. Go ahead, it's not hard!
 
+---
+
+Now that you've gotten used to the basic commands you can perform, we can
+talk about cool stuff:
+
 ## Colour Interpolation ##
 One of the most powerful tools available in PaletteMaker. Suppose your sprite
 has reds and blues, but you need some intermediate tones. You can set the first
@@ -99,6 +152,8 @@ mixing more than two colours.
 
 If you hold <kbd>CTRL</kbd> while left clicking a cell, the selected cell will
 gradually approach the clicked cell's colour.
+
+---
 
 ## Other details ##
 ### Returning to Palette Selection ###
