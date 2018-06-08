@@ -185,7 +185,7 @@ function love.load()
                              if love.keyboard.isDown("lctrl")
                                      or love.keyboard.isDown("rctrl") then
                                  saturate()
-                             elseif love.keyboard.isDown("lalt") 
+                             elseif love.keyboard.isDown("lalt")
                                      or love.keyboard.isDown("ralt") then
                                  increaseHue()
                              else
@@ -202,7 +202,7 @@ function love.load()
                              if love.keyboard.isDown("lctrl")
                                      or love.keyboard.isDown("rctrl") then
                                  desaturate()
-                             elseif love.keyboard.isDown("lalt") 
+                             elseif love.keyboard.isDown("lalt")
                                      or love.keyboard.isDown("ralt") then
                                  decreaseHue()
                             else
@@ -228,12 +228,21 @@ function love.load()
 
     fonts = {
         [12] = love.graphics.getFont(),
-        [16] = love.graphics.newFont(16)
+		[16] = love.graphics.newFont(16),
+		[24] = love.graphics.newFont(24)
     }
 
     saveDirText = love.graphics.newText(
         love.graphics.getFont(), "Save directory: "..love.filesystem.getSaveDirectory()
-    )
+	)
+
+	hueSliderSelectHotkey = "q"
+	satSliderSelectHotkey = "w"
+	valSliderSelectHotkey = "e"
+
+	hueSliderSelectHotkeyText = love.graphics.newText(fonts[24], hueSliderSelectHotkey:upper())
+	satSliderSelectHotkeyText = love.graphics.newText(fonts[24], satSliderSelectHotkey:upper())
+	valSliderSelectHotkeyText = love.graphics.newText(fonts[24], valSliderSelectHotkey:upper())
 
     helpShow = love.graphics.newText(love.graphics.getFont(), "press h for help")
 
@@ -270,7 +279,7 @@ function love.load()
     helpText2X = math.ceil(gridX + ((gridC+1) * (gridSpacing+cellSize)) / 2)
     helpText3X = math.ceil(gridX + (gridC+2.3) * (gridSpacing+cellSize))
     helpTextY = math.ceil(gridY + (gridR+0.6) * (gridSpacing+cellSize))
-    helpSectionY = math.ceil(gridY + (gridR-0.2) * (gridSpacing+cellSize))
+	helpSectionY = math.ceil(gridY + (gridR-0.2) * (gridSpacing+cellSize))
 
     love.graphics.setLineWidth(.5)
 
@@ -352,7 +361,7 @@ function love.load()
                 end,
                 clickmap = selectCM,
                 mousemoved = function(x, y)
-                    local r = selectCM:check(x, y) 
+                    local r = selectCM:check(x, y)
                     if r and r.idx <= #palettes then
                         selectedPalIdx = r.idx
                     else
@@ -389,15 +398,18 @@ function love.load()
 
                     hueSlider:draw(hueSlider.x, hueSlider.y)
                     love.graphics.print(h, hueSlider.x + gradW + 10, hueSlider.y + 8)
-                    love.graphics.draw(sliderFrame, hueSlider.x, hueSlider.y)
-
-                    valSlider:draw(valSlider.x, valSlider.y)
-                    love.graphics.print(v, valSlider.x + gradW + 10, valSlider.y + 8)
-                    love.graphics.draw(sliderFrame, valSlider.x, valSlider.y)
+					love.graphics.draw(sliderFrame, hueSlider.x, hueSlider.y)
+					love.graphics.draw(hueSliderSelectHotkeyText, hueSlider.x - 24 - hueSliderSelectHotkeyText:getWidth()/2, hueSlider.y)
 
                     satSlider:draw(satSlider.x, satSlider.y)
                     love.graphics.print(s, satSlider.x + gradW + 10, satSlider.y + 8)
                     love.graphics.draw(sliderFrame, satSlider.x, satSlider.y)
+					love.graphics.draw(satSliderSelectHotkeyText, satSlider.x - 24 - satSliderSelectHotkeyText:getWidth()/2, satSlider.y)
+
+                    valSlider:draw(valSlider.x, valSlider.y)
+                    love.graphics.print(v, valSlider.x + gradW + 10, valSlider.y + 8)
+					love.graphics.draw(sliderFrame, valSlider.x, valSlider.y)
+					love.graphics.draw(valSliderSelectHotkeyText, valSlider.x - 24 - valSliderSelectHotkeyText:getWidth()/2, valSlider.y)
 
                     rgbDisplay:draw()
 
@@ -613,7 +625,7 @@ function initHSVSliders()
         -sliderCursorImg:getWidth()/2,
         -sliderCursorImg:getHeight()/8
     )
-    hueSlider.x, hueSlider.y = 500, 200
+    hueSlider.x, hueSlider.y = 530, 200
 
     valSlider = Slider(
         valGradient,
@@ -621,7 +633,7 @@ function initHSVSliders()
         -sliderCursorImg:getWidth()/2,
         -sliderCursorImg:getHeight()/8
     )
-    valSlider.x, valSlider.y = 500, 300
+    valSlider.x, valSlider.y = 530, 300
     valSlider:setPercent(1)
 
     satSlider = Slider(
@@ -630,7 +642,7 @@ function initHSVSliders()
         -sliderCursorImg:getWidth()/2,
         -sliderCursorImg:getHeight()/8
     )
-    satSlider.x, satSlider.y = 500, 250
+    satSlider.x, satSlider.y = 530, 250
     satSlider:setPercent(0)
 end
 
