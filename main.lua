@@ -401,7 +401,7 @@ function love.load()
 
                     rgbDisplay:draw()
 
-                    local rgb = ("RGB: %d, %d, %d"):format(getRGB())
+                    local rgb = ("RGB: %d, %d, %d"):format(getRGB255())
                     local w = love.graphics.getFont():getWidth(rgb)
                     love.graphics.print(rgb, rgbDisplay.x + (rgbDisplay.w-w)/2, rgbDisplay.y + rgbDisplay.h)
 
@@ -645,6 +645,11 @@ end
 
 function getRGB()
     return HSV.toRGB(getHSV())
+end
+
+function getRGB255()
+	r, g, b = getRGB()
+	return 255*r, 255*g, 255*b
 end
 
 function updateGradients()
