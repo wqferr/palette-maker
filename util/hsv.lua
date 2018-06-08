@@ -47,7 +47,6 @@ local hueFunctions = {
 }
 
 function HSV.fromRGB(r, g, b)
-    r, g, b = r/255, g/255, b/255
     local m, M, dominant = math.min(r, g, b), maxi(r, g, b)
     local chroma = M - m
     local H, S, V
@@ -79,7 +78,7 @@ function HSV.toRGB(h, s, v)
 
     local m = v - chroma
     r, g, b = r + m, g + m, b + m
-    return 255*r, 255*g, 255*b
+    return r, g, b
 end
 
 return HSV

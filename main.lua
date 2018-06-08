@@ -164,7 +164,20 @@ function love.load()
     editKL:register("left", moveSelection)
     editKL:register("right", moveSelection)
     editKL:register("delete", function(...) clear() end)
-    editKL:register("=",
+    editKL:register("s",
+                         function()
+                             if editController:getMode() == "name" then
+                                 return
+                             end
+                             if love.keyboard.isDown("lctrl")
+                                     or love.keyboard.isDown("rctrl") then
+                                 save()
+                             end
+                         end
+                    )
+
+    editTextListener = EventListener()
+    editTextListener:register("+",
                          function()
                              if editController:getMode() == "name" then
                                  return
@@ -181,7 +194,7 @@ function love.load()
                              updateColours()
                          end
                      )
-    editKL:register("-",
+    editTextListener:register("-",
                          function()
                              if editController:getMode() == "name" then
                                  return
@@ -198,25 +211,14 @@ function love.load()
                             updateColours()
                          end
                      )
-    editKL:register("s",
-                         function()
-                             if editController:getMode() == "name" then
-                                 return
-                             end
-                             if love.keyboard.isDown("lctrl")
-                                     or love.keyboard.isDown("rctrl") then
-                                 save()
-                             end
-                         end
-                    )
-    editKL:register("h",
+    editTextListener:register("h",
                          function()
                              if editController:getMode() ~= "name" then
                                  help = not help
                              end
                          end
                     )
-    editKL:register("escape",
+    editTextListener:register("escape",
                          function()
                              if editController:getMode() == "normal" then
                                  guiController:setMode("select")
@@ -308,7 +310,7 @@ function love.load()
 
                     local items = love.filesystem.getDirectoryItems("")
                     for _, item in pairs(items) do
-                        if love.filesystem.isFile(item)
+                        if love.filesystem.getInfo(item).type == "file"
                                 and item:sub(-4) == ".png" then
                             local data = love.image.newImageData(item)
                             if data:getWidth() == data:getHeight()
@@ -362,7 +364,7 @@ function love.load()
                 __enter = function(controller, prevState, img, imgName)
                     fileName = imgName or "palette"
                     if imgName then
-                        local imgData = img:getData()
+						local imgData = love.image.newImageData(imgName..".png")
                         for i = 1, gridR do
                             for j = 1, gridC do
                                 cells[i][j]:setRGB(imgData:getPixel(j-1, i-1))
@@ -468,7 +470,7 @@ function love.load()
                             fileName = fileName:sub(1, -2)
                         elseif k == "return" then
                             editController:setMode("normal")
-                        else
+                        --[[else
                             local s = ""
                             local m = k:match("[%-%+%. ]")
 
@@ -483,10 +485,16 @@ function love.load()
                                 s = m
                             end
 
-                            fileName = fileName..s
+                            fileName = fileName..s]]
                         end
                     end
                 end,
+                textinput = function(text)
+                    if editController:getMode() == "name" then
+                        fileName = fileName..text
+                    end
+                end,
+                textinputlistener = editTextListener,
                 keylistener = editKL,
                 clickmap = editCM
             } -- END EDIT MDOE DEF
@@ -529,6 +537,15 @@ function love.keypressed(k)
     end
     if guiController.keypressed then
         guiController.keypressed(k)
+    end
+end
+
+function love.textinput(text)
+    if guiController.textinput then
+        guiController.textinput(text)
+    end
+    if guiController.textinputlistener then
+        guiController.textinputlistener:alert(text)
     end
 end
 
