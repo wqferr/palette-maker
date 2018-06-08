@@ -429,7 +429,7 @@ function love.load()
                     local hoveredCell = editCM:check(love.mouse.getX(), love.mouse.getY())
                     if hoveredCell and hoveredCell.cell then
                         local frameColour = {love.graphics.getColor()}
-                        frameColour[4] = 100
+                        frameColour[4] = 0.4
                         love.graphics.setColor(frameColour)
                         love.graphics.draw(selectFrame, hoveredCell.cell.x - 5, hoveredCell.cell.y - 5)
                         love.graphics.setColor(c)
@@ -451,7 +451,7 @@ function love.load()
 
                     love.graphics.draw(saveDirText, gridX, 2)
                     if editController:getMode() == "name" then
-                        love.graphics.setColor(200, 200, 200)
+                        love.graphics.setColor(0.8, 0.8, 0.8)
                         love.graphics.rectangle("fill", gridX, 18, gridC*(gridSpacing+cellSize), 20)
                         love.graphics.setColor(0, 0, 0)
                     end
@@ -464,8 +464,7 @@ function love.load()
                     love.graphics.rectangle("line", gridX, 18, gridC*(gridSpacing+cellSize), 20)
                     love.graphics.setColor(c)
 
-                    love.graphics.setColor(150, 150, 150)
-                    love.graphics.setColor(255, 255, 255)
+                    love.graphics.setColor(1, 1, 1)
                 end,
                 mousepressed = function(x, y, mb)
                     editController.updateCursor(x - hueSlider.x)
