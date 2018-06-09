@@ -261,13 +261,11 @@ function love.load()
     helpShow = love.graphics.newText(love.graphics.getFont(), "press h for help")
 
     helpSection1 = "Arrow controls:"
-    helpText1 = "arrows: change selection\n"..
-                "ctrl: increase brightness\n"..
-                "shift + ctrl: decrease brightness\n"..
-                "alt: increase saturation\n"..
-                "shift + alt: decrease saturation\n"..
-                "ctrl + alt: colour interpolation\n"..
-                "ctrl + shift + alt: copy"
+    helpText1 = "arrows: move selection\n"..
+                "ctrl: decrease selected component\n"..
+                "shift: increase selected component\n"..
+                "alt: copy\n"..
+                "ctrl + shift: colour interpolation"
 
     helpSection2 = "Mouse controls:"
     helpText2 = "left click: select cell\n"..
@@ -277,9 +275,8 @@ function love.load()
 
     helpSection3 = "Other controls:"
     helpText3 = "ctrl + s: save\n"..
-                "+/-: change brightness\n"..
-                "ctrl + +/-: change saturation\n"..
-                "alt + +/-: change hue\n"..
+                "+/-: change selected component\n"..
+                "q/w/e: select H/S/V component\n"..
                 "delete: reset selection S and V\n"..
                 "h: show/hide help"
 
@@ -745,7 +742,7 @@ function clear(cell)
     if editController:getMode() ~= "name" then
         cell = cell or selectedCell
 
-        cell:setHSV(nil, 0, 0)
+        cell:setHSV(nil, 1, 0)
         if cell == selectedCell then
             updateColours()
         end
