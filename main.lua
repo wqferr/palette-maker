@@ -840,49 +840,51 @@ function moveSelection(direction)
 
         local setColour = true
 
-        if love.keyboard.isDown("lctrl") then
-            if love.keyboard.isDown("lalt") then
-                if not love.keyboard.isDown("lshift") then
-                    setColour = false
+		if love.keyboard.isDown("lshift", "rshift") then
+			if love.keyboard.isDown("lctrl", "rctrl") then
+				-- Both shift and ctrl are held = interpolate mode
+				setColour = false
+				local r2, c2 = nextFilledCell(r0, c0, direction)
+				if r2 then
+					local d = dist(r0, c0, r2, c2)
 
-                    local r2, c2 = nextFilledCell(r0, c0, direction)
-                    if r2 then
-                        local d = dist(r0, c0, r2, c2)
+					local h0, s0, v0 = cells[r0][c0]:getHSV()
+					local h2, s2, v2 = cells[r2][c2]:getHSV()
+					local dh, ds, dv = h2-h0, s2-s0, v2-v0
+					dh, ds, dv = dh/d, ds/d, dv/d
 
-                        local h0, s0, v0 = cells[r0][c0]:getHSV()
-                        local h2, s2, v2 = cells[r2][c2]:getHSV()
-                        local dh, ds, dv = h2-h0, s2-s0, v2-v0
-                        dh, ds, dv = dh/d, ds/d, dv/d
+					local i = 1
+					while r1 ~= r2 or c1 ~= c2 do
+						cells[r1][c1]:setHSV(
+							h0 + i*dh,
+							s0 + i*ds,
+							v0 + i*dv
+						)
+						r1, c1 = nxt(r1, c1)
+						i = i + 1
+					end
+					selectCell(r0, c0)
+				end
+			else
+				-- Only shift is held = increase selected slider
+				h, s, v = changeColor(selectedSlider, {h, s, v}, 0.1)
+			end
+		elseif love.keyboard.isDown("lctrl", "rctrl") then
+			-- Only ctrl is held = decrease selected slider
+			h, s, v = changeColor(selectedSlider, {h, s, v}, -0.1)
+			h = (h + 360) % 360
+		elseif not love.keyboard.isDown("lalt", "ralt") then
+			-- Only alt is held = copy, but {h, s, v} is already set to the
+			-- previous cell's color
 
-                        local i = 1
-                        while r1 ~= r2 or c1 ~= c2 do
-                            cells[r1][c1]:setHSV(
-                                h0 + i*dh,
-                                s0 + i*ds,
-                                v0 + i*dv
-                            )
-                            r1, c1 = nxt(r1, c1)
-                            i = i + 1
-                        end
-                        selectCell(r0, c0)
-                    end
-                end
-            elseif love.keyboard.isDown("lshift") then
-                v = math.max(0, (v-0.1) / 1.1)
-            else
-                v = math.min(1, 0.1 + v*1.1)
-            end
-        elseif love.keyboard.isDown("lalt") then
-            if love.keyboard.isDown("lshift") then
-                s = math.max(0, (s-0.1) / 1.1)
-            else
-                s = math.min(1, 0.1 + s*1.1)
-            end
-        else
+			-- alt is not held = nothing to do to this cell
             setColour = false
         end
 
-        if setColour then
+		if setColour then
+			h = math.min(360, math.max(0, h))
+			s = math.min(1, math.max(0, s))
+			v = math.min(1, math.max(0, v))
             selectedCell:setHSV(h, s, v)
         end
 
@@ -920,4 +922,21 @@ function save()
         end
     )
     paletteData:encode("png", fileName..".png")
+end
+
+function changeColor(component, color, delta)
+	local idx
+	local componentMax
+	if component == "hue" then
+		idx = 1
+		componentMax = 360
+	elseif component == "sat" then
+		idx = 2
+		componentMax = 1
+	else
+		idx = 3
+		componentMax = 1
+	end
+	color[idx] = color[idx] + delta*componentMax
+	return unpack(color)
 end
