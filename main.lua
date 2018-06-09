@@ -33,6 +33,8 @@ local satGradientData, satGradient
 local valGradientData, valGradient
 local sliderCursorImg
 local hueSlider, satSlider, valSlider
+local selectedSlider
+local sliderHotkeyLitColor, sliderHotkeyUnlitColor
 
 local guiController
 
@@ -182,11 +184,9 @@ function love.load()
                              if editController:getMode() == "name" then
                                  return
                              end
-                             if love.keyboard.isDown("lctrl")
-                                     or love.keyboard.isDown("rctrl") then
+                             if selectedSlider == "sat" then
                                  saturate()
-                             elseif love.keyboard.isDown("lalt")
-                                     or love.keyboard.isDown("ralt") then
+                             elseif selectedSlider == "hue" then
                                  increaseHue()
                              else
                                  lighten()
@@ -199,11 +199,9 @@ function love.load()
                              if editController:getMode() == "name" then
                                  return
                              end
-                             if love.keyboard.isDown("lctrl")
-                                     or love.keyboard.isDown("rctrl") then
+                             if selectedSlider == "sat" then
                                  desaturate()
-                             elseif love.keyboard.isDown("lalt")
-                                     or love.keyboard.isDown("ralt") then
+                             elseif selectedSlider == "hue" then
                                  decreaseHue()
                             else
                                 darken()
@@ -224,7 +222,19 @@ function love.load()
                                  guiController:setMode("select")
                              end
                          end
-                    )
+					)
+	editTextListener:register("q",
+		function()
+			selectedSlider = "hue"
+		end)
+	editTextListener:register("w",
+		function()
+			selectedSlider = "sat"
+		end)
+	editTextListener:register("e",
+		function()
+			selectedSlider = "val"
+		end)
 
     fonts = {
         [12] = love.graphics.getFont(),
@@ -235,6 +245,10 @@ function love.load()
     saveDirText = love.graphics.newText(
         love.graphics.getFont(), "Save directory: "..love.filesystem.getSaveDirectory()
 	)
+
+	sliderHotkeyLitColor = {1, 1, 1}
+	sliderHotkeyUnlitColor = {0.4, 0.4, 0.4}
+	selectedSlider = "hue"
 
 	hueSliderSelectHotkey = "q"
 	satSliderSelectHotkey = "w"
@@ -399,17 +413,36 @@ function love.load()
                     hueSlider:draw(hueSlider.x, hueSlider.y)
                     love.graphics.print(h, hueSlider.x + gradW + 10, hueSlider.y + 8)
 					love.graphics.draw(sliderFrame, hueSlider.x, hueSlider.y)
+
+					if selectedSlider == "hue" then
+						love.graphics.setColor(sliderHotkeyLitColor)
+					else
+						love.graphics.setColor(sliderHotkeyUnlitColor)
+					end
 					love.graphics.draw(hueSliderSelectHotkeyText, hueSlider.x - 24 - hueSliderSelectHotkeyText:getWidth()/2, hueSlider.y)
+					love.graphics.setColor(1, 1, 1)
 
                     satSlider:draw(satSlider.x, satSlider.y)
                     love.graphics.print(s, satSlider.x + gradW + 10, satSlider.y + 8)
-                    love.graphics.draw(sliderFrame, satSlider.x, satSlider.y)
+					love.graphics.draw(sliderFrame, satSlider.x, satSlider.y)
+					if selectedSlider == "sat" then
+						love.graphics.setColor(sliderHotkeyLitColor)
+					else
+						love.graphics.setColor(sliderHotkeyUnlitColor)
+					end
 					love.graphics.draw(satSliderSelectHotkeyText, satSlider.x - 24 - satSliderSelectHotkeyText:getWidth()/2, satSlider.y)
+					love.graphics.setColor(1, 1, 1)
 
                     valSlider:draw(valSlider.x, valSlider.y)
                     love.graphics.print(v, valSlider.x + gradW + 10, valSlider.y + 8)
 					love.graphics.draw(sliderFrame, valSlider.x, valSlider.y)
+					if selectedSlider == "val" then
+						love.graphics.setColor(sliderHotkeyLitColor)
+					else
+						love.graphics.setColor(sliderHotkeyUnlitColor)
+					end
 					love.graphics.draw(valSliderSelectHotkeyText, valSlider.x - 24 - valSliderSelectHotkeyText:getWidth()/2, valSlider.y)
+					love.graphics.setColor(1, 1, 1)
 
                     rgbDisplay:draw()
 
@@ -642,7 +675,7 @@ function initHSVSliders()
         -sliderCursorImg:getHeight()/8
     )
     satSlider.x, satSlider.y = 530, 250
-    satSlider:setPercent(0)
+	satSlider:setPercent(0)
 end
 
 
