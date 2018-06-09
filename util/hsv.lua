@@ -55,7 +55,7 @@ function HSV.fromRGB(r, g, b)
     
     if chroma == 0 then
         H = 0
-        S = 0
+        S = 1
     else
         H = 60 * hueFunctions[dominant](r, g, b, chroma)
         S = chroma / V

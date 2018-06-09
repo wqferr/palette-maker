@@ -149,7 +149,7 @@ function love.load()
 
             local c = ColourContainer(
                 x, y, cellSize, cellSize,
-                {0, 0, 0}, cellFrame
+                {0, 1, 0}, cellFrame
             )
             local region = editCM:newRegion("rect", clickCell, nop, x, y, cellSize, cellSize)
             region.cell = c
@@ -396,7 +396,7 @@ function love.load()
                     else
                         for i = 1, gridR do
                             for j = 1, gridC do
-                                cells[i][j]:setHSV(0, 0, 0)
+                                cells[i][j]:setHSV(0, 1, 0)
                             end
                         end
                     end
