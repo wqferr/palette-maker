@@ -1,6 +1,5 @@
 function love.conf(t)
     t.version = "11.1"
-    t.console = true
     t.window.title = "PaletteMaker"
 
     t.modules.audio = false
