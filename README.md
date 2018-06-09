@@ -1,5 +1,5 @@
 # PaletteMaker #
-Made using LÖVE 0.10.1
+Made using LÖVE 11.1
 
 ## Overview ##
 ### What is this? ###
@@ -52,14 +52,14 @@ Now, onto the application.
 ---
 
 ### How do I install it? ###
-If you already have LÖVE 0.10.1 or higher installed, you can:
+If you already have LÖVE 11.1 or higher installed, you can:
 
 * Download the repo and run the source code
-* [Download the .love file provided](https://gitlab.com/wqferr/palette-maker/tags)
+* [Download the .love file provided](https://github.com/wqferr/palette-maker/tags)
 
 If not, and you're on Windows, you can
-[download the zip](https://gitlab.com/wqferr/palette-maker/tags) containing a
-32 bit exe and required libs.
+[download the zip](https://github.com/wqferr/palette-maker/tags) containing an
+exe file and required libs.
 
 If you're not on Windows or are too paranoid to donwload an exe, you'll have to
 install LÖVE.
@@ -81,7 +81,7 @@ along the lines of:
 
 ## TOO MANY BUTTONS, HALP ##
 ### Basic Interface and Commands ###
-You can press <kbd>H</kbd> in edit mode to get a cheatsheet, but here comes a
+You can press <kbd>H</kbd> to get a cheatsheet, but here comes a
 more detailed explanation:
 
 ### Grid & Selection ###
@@ -96,14 +96,16 @@ On the right side of the window, you'll see 3 sliders representing the 3
 components of the HSV encoding. By changing the values of these sliders, you'll
 change the value of the selected cell. A larger display of the colour can be
 found above the sliders. The sliders can also be controlled solely
-with he keyboard using the <kbd>+</kbd>/<kbd>-</kbd> keys with different modifier
-keys:
+with he keyboard using the <kbd>+</kbd>/<kbd>-</kbd> keys.
+To select which component this operation (and others) will modify, you can select one of the sliders with the keyboard:
 
-* <kbd>ALT</kbd> for H
-* <kbd>CTRL</kbd> for S
-* None for V
+* <kbd>Q</kbd> for H
+* <kbd>W</kbd> for S
+* <kbd>E</kbd> for V
 
-You can also reset the S and V sliders to their initial values (0, i.e. black)
+The selected slider will have the label with its corresponding keyboard shortcut highlighted.
+
+You can also reset the S and V sliders to their initial values (0 and 1, i.e. black)
 by pressing <kbd>DEL</kbd>. Note that this operation does not reset the hue to 0,
 mainly because:
 
@@ -114,16 +116,12 @@ mainly because:
 By holding different modifiers while using the arrow keys, you can make gradual
 transitions between colours. The basic commands are:
 
-* <kbd>CTRL</kbd>: Increase brightness
-* <kbd>CTRL</kbd> + <kbd>SHIFT</kbd>: Decrease brightness
-* <kbd>ALT</kbd>: Increase saturation
-* <kbd>ALT</kbd> + <kbd>SHIFT</kbd>: Decrease saturation
-* <kbd>CTRL</kbd> + <kbd>SHIFT</kbd> + <kbd>ALT</kbd>: Copy colour
+* <kbd>CTRL</kbd>: Copy colour and increase selected component
+* <kbd>SHIFT</kbd>: Copy colour and decrease selected component
+* <kbd>ALT</kbd>: Copy colour
+* <kbd>CTRL</kbd> + <kbd>SHIFT</kbd>: Interpolate (see below)
 
-The increase commands take a value `x` and take it to `0.1 + (1.1*x)`.
-
-Similarly, the decrease commands take a value `x` and take it to
-`(x-0.1) / 1.1`.
+Increase and decrease commands alter the value by a tenth of the component's maximum value.
 
 The copy command simply copies the H, S and V values into the next cell.
 
@@ -140,10 +138,10 @@ One of the most powerful tools available in PaletteMaker. Suppose your sprite
 has reds and blues, but you need some intermediate tones. You can set the first
 cell to red, leave a few white cells in the same row or column, then set a blue
 cell.
-After this setup, select one cell, hold <kbd>CTRL</kbd> + <kbd>ALT</kbd> and press
+After this setup, select one cell, hold <kbd>CTRL</kbd> + <kbd>SHIFT</kbd> and press
 the arrow key in the direction of the other one.
 
-Like magic, each cell inbetween is set to gradual tones between the two colours!
+Like magic, each cell inbetween is set to gradual tones between the two colours! This is only possible because of the HSV colour space. Interpolation in RGB technically works, but not nearly as well.
 
 ## Colour Mixing ##
 This could be useful for getting intermediate tones given two colours if the
@@ -166,17 +164,15 @@ are unsaved changes.
 ### Changing the Palette Name ###
 While in edit mode, you'll see a rectangle above the cell grid with some text in it.
 That is the palette name, that will also translate to the output file. You can edit
-it by clicking anywhere inside the rectangle. After you're done, press <kbd>return</kbd>
-or <kbd>enter</kbd> to confirm the name.
+it by clicking anywhere inside the rectangle. After you're done, press <kbd>return</kbd> (a.k.a. <kbd>enter</kbd>) to confirm the name.
 
 ### The Save Directory ###
 Above the palette name you'll see a file path ending in `palette-maker`. That's the
 directory palettes can be saved to or loaded from. **Please note I do not control this,**
-**and I cannot make it so it saves to any directory you want.** It may work on some
-systems but for now I have not been able to get it right on any more than 1 at once.
+**and I cannot make it so it saves to any directory you want.**
 
 ### Saving ###
-Pressing <kbd>CTRL</kbd> + <kbd>S</kbd> will dump the resulting palette into a
+Pressing <kbd>CTRL</kbd> + <kbd>S</kbd> will save the resulting palette into a
 16x16 png image, with each cell mapping to the pixel in its corresponding position.
 
 ### Reading ###
@@ -191,6 +187,7 @@ If your file follows all of the above, then it should appear as a thumbnail in t
 selection screen.
 
 ## Who are you anyway? ##
-I'm a Computer Sciences student at USP (University of São Paulo, Brazil), and
-aspirant game designer and developer. If need be, you may email me at
+I'm a Computer Sciences student at USP (University of São Paulo, Brazil), game designer and developer as a hobby.
+
+If need be, you may email me at
 `wqferr@gmail.com`
