@@ -177,6 +177,13 @@ function love.load()
                              end
                          end
                     )
+    editKL:register("escape",
+                         function()
+                             if editController:getMode() == "normal" then
+                                 guiController:setMode("select")
+                             end
+                         end
+					)
 
     editTextListener = EventListener()
     editTextListener:register("+",
@@ -216,13 +223,6 @@ function love.load()
                              end
                          end
                     )
-    editTextListener:register("escape",
-                         function()
-                             if editController:getMode() == "normal" then
-                                 guiController:setMode("select")
-                             end
-                         end
-					)
 	editTextListener:register("q",
 		function()
 			selectedSlider = "hue"
