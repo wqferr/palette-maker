@@ -1,3 +1,5 @@
 *.love
 *.zip
+.vscode/**
 dist/**
+!dist/build.py
