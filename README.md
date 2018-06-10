@@ -116,8 +116,8 @@ mainly because:
 By holding different modifiers while using the arrow keys, you can make gradual
 transitions between colours. The basic commands are:
 
-* <kbd>CTRL</kbd>: Copy colour and increase selected component
-* <kbd>SHIFT</kbd>: Copy colour and decrease selected component
+* <kbd>SHIFT</kbd>: Copy colour and increase selected component
+* <kbd>CTRL</kbd>: Copy colour and decrease selected component
 * <kbd>ALT</kbd>: Copy colour
 * <kbd>CTRL</kbd> + <kbd>SHIFT</kbd>: Interpolate (see below)
 
