@@ -1,2 +1,3 @@
 *.love
 *.zip
+dist/**
