@@ -75,22 +75,19 @@ function love.load()
     local region = editCM:newRegion(
         "rect",
         clickSlider, releaseSlider,
-        hueSlider.x, hueSlider.y, gradW, gradH
-    )
+        hueSlider.x, hueSlider.y, gradW, gradH)
     region.slider = hueSlider
 
     region = editCM:newRegion(
         "rect",
         clickSlider, releaseSlider,
-        valSlider.x, valSlider.y, gradW, gradH
-    )
+        valSlider.x, valSlider.y, gradW, gradH)
     region.slider = valSlider
 
     region = editCM:newRegion(
         "rect",
         clickSlider, releaseSlider,
-        satSlider.x, satSlider.y, gradW, gradH
-    )
+        satSlider.x, satSlider.y, gradW, gradH)
     region.slider = satSlider
 
 
@@ -100,8 +97,7 @@ function love.load()
             editController:setMode("name")
         end,
         nop,
-        gridX, 18, gridC*(gridSpacing+cellSize), 20
-    )
+        gridX, 18, gridC*(gridSpacing+cellSize), 20)
 
     rgbDisplay = ColourContainer(550, 50, 100, 100, {0, 0, 1}, "img/rgbFrame.png", true)
     rgbDisplayIcon = love.graphics.newImage("img/rgbDisplay.png")
@@ -144,13 +140,13 @@ function love.load()
         cells[i] = {}
 
         for j = 1, gridC do
-            local x, y = gridX + (j-1) * (gridSpacing + cellSize),
-                         gridY + (i-1) * (gridSpacing + cellSize)
+            local x, y =
+                gridX + (j-1) * (gridSpacing + cellSize),
+                gridY + (i-1) * (gridSpacing + cellSize)
 
             local c = ColourContainer(
                 x, y, cellSize, cellSize,
-                {0, 1, 0}, cellFrame
-            )
+                {0, 1, 0}, cellFrame)
             local region = editCM:newRegion("rect", clickCell, nop, x, y, cellSize, cellSize)
             region.cell = c
             region.row = i
@@ -166,74 +162,83 @@ function love.load()
     editKL:register("left", moveSelection)
     editKL:register("right", moveSelection)
     editKL:register("delete", function(...) clear() end)
-    editKL:register("s",
-                         function()
-                             if editController:getMode() == "name" then
-                                 return
-                             end
-                             if love.keyboard.isDown("lctrl")
-                                     or love.keyboard.isDown("rctrl") then
-                                 save()
-                             end
-                         end
-                    )
-    editKL:register("escape",
-                         function()
-                             if editController:getMode() == "normal" then
-                                 guiController:setMode("select")
-                             end
-                         end
-					)
+    editKL:register(
+        "s",
+        function()
+            if editController:getMode() == "name" then
+                return
+            end
+            if love.keyboard.isDown("lctrl")
+                    or love.keyboard.isDown("rctrl") then
+                save()
+            end
+        end)
+    editKL:register(
+        "escape",
+        function()
+            if editController:getMode() == "normal" then
+                guiController:setMode("select")
+            end
+        end)
 
     editTextListener = EventListener()
-    editTextListener:register("+",
-                         function()
-                             if editController:getMode() == "name" then
-                                 return
-                             end
-                             if selectedSlider == "sat" then
-                                 saturate()
-                             elseif selectedSlider == "hue" then
-                                 increaseHue()
-                             else
-                                 lighten()
-                             end
-                             updateColours()
-                         end
-                     )
-    editTextListener:register("-",
-                         function()
-                             if editController:getMode() == "name" then
-                                 return
-                             end
-                             if selectedSlider == "sat" then
-                                 desaturate()
-                             elseif selectedSlider == "hue" then
-                                 decreaseHue()
-                            else
-                                darken()
-                            end
-                            updateColours()
-                         end
-                     )
-    editTextListener:register("h",
-                         function()
-                             if editController:getMode() ~= "name" then
-                                 help = not help
-                             end
-                         end
-                    )
-	editTextListener:register("q",
-		function()
-			selectedSlider = "hue"
+    editTextListener:register(
+        "+",
+        function()
+            if editController:getMode() == "name" then
+                return
+            end
+            if selectedSlider == "sat" then
+                saturate()
+            elseif selectedSlider == "hue" then
+                increaseHue()
+            else
+                lighten()
+            end
+            updateColours()
+        end)
+    editTextListener:register(
+        "-",
+        function()
+            if editController:getMode() == "name" then
+                return
+            end
+            if selectedSlider == "sat" then
+                desaturate()
+            elseif selectedSlider == "hue" then
+                decreaseHue()
+           else
+               darken()
+           end
+           updateColours()
+        end)
+    editTextListener:register(
+        "h",
+        function()
+            if editController:getMode() ~= "name" then
+                help = not help
+            end
+        end)
+	editTextListener:register(
+        "q",
+        function()
+            if editController:getMode() ~= "name" then
+                selectedSlider = "hue"
+            end
 		end)
-	editTextListener:register("w",
-		function()
-			selectedSlider = "sat"
+	editTextListener:register(
+        "w",
+        function()
+            if editController:getMode() ~= "name" then
+                selectedSlider = "sat"
+            end
 		end)
-	editTextListener:register("e",
-		function()
-			selectedSlider = "val"
+	editTextListener:register(
+        "e",
+        function()
+            if editController:getMode() ~= "name" then
+                selectedSlider = "val"
+            end
 		end)
 
     fonts = {
@@ -243,8 +248,7 @@ function love.load()
     }
 
     saveDirText = love.graphics.newText(
-        love.graphics.getFont(), "Save directory: "..love.filesystem.getSaveDirectory()
-	)
+        love.graphics.getFont(), "Save directory: "..love.filesystem.getSaveDirectory())
 
 	sliderHotkeyLitColor = {1, 1, 1}
 	sliderHotkeyUnlitColor = {0.4, 0.4, 0.4}
@@ -310,8 +314,7 @@ function love.load()
                 clickPalette, nop,
                 palettesX + (j-1) * (palettesSpacing+paletteSize),
                 palettesY + (i-1) * (palettesSpacing+paletteSize),
-                paletteSize, paletteSize
-            )
+                paletteSize, paletteSize)
             region.idx = (i-1)*palettesC + j
         end
     end
@@ -340,8 +343,7 @@ function love.load()
                                     {
                                         img = love.graphics.newImage(data),
                                         val = item:sub(1, -5)
-                                    }
-                                )
+                                    })
                             end
                         end
                     end
@@ -511,22 +513,6 @@ function love.load()
                             fileName = fileName:sub(1, -2)
                         elseif k == "return" then
                             editController:setMode("normal")
-                        --[[else
-                            local s = ""
-                            local m = k:match("[%-%+%. ]")
-
-                            if #k == 1 and "a" <= k and k <= "z" then
-                                if love.keyboard.isDown("lshift")
-                                        or love.keyboard.isDown("rshift") then
-                                    s = k:upper()
-                                else
-                                    s = k
-                                end
-                            elseif m then
-                                s = m
-                            end
-
-                            fileName = fileName..s]]
                         end
                     end
                 end,
@@ -540,8 +526,7 @@ function love.load()
                 clickmap = editCM
             } -- END EDIT MDOE DEF
         },
-        "select"
-    )
+        "select")
 end
 
 function love.draw()
@@ -598,8 +583,7 @@ function initHSVSliders()
             local h = x/gradW * 360
 
             return HSV.toRGB(h, 1, 1)
-        end
-    )
+        end)
     hueGradient = love.graphics.newImage(hueGradientData)
 
     valGradientData = love.image.newImageData(gradW, gradH)
@@ -608,8 +592,7 @@ function initHSVSliders()
             local l = x / gradW
 
             return HSV.toRGB(0, 0, l)
-        end
-    )
+        end)
     valGradient = love.graphics.newImage(valGradientData)
 
     satGradientData = love.image.newImageData(gradW, gradH)
@@ -618,8 +601,7 @@ function initHSVSliders()
             local s = x/gradW
 
             return HSV.toRGB(0, s, 1)
-        end
-    )
+        end)
     satGradient = love.graphics.newImage(satGradientData)
 
     editController = ModeController(
@@ -645,23 +627,20 @@ function initHSVSliders()
                 end
             }
         },
-        "normal"
-    )
+        "normal")
     sliderCursorImg = love.graphics.newImage("img/cursor.png")
     hueSlider = Slider(
         hueGradient,
         sliderCursorImg,
         -sliderCursorImg:getWidth()/2,
-        -sliderCursorImg:getHeight()/8
-    )
+        -sliderCursorImg:getHeight()/8)
     hueSlider.x, hueSlider.y = 530, 200
 
     valSlider = Slider(
         valGradient,
         sliderCursorImg,
         -sliderCursorImg:getWidth()/2,
-        -sliderCursorImg:getHeight()/8
-    )
+        -sliderCursorImg:getHeight()/8)
     valSlider.x, valSlider.y = 530, 300
     valSlider:setPercent(1)
 
@@ -669,8 +648,7 @@ function initHSVSliders()
         satGradient,
         sliderCursorImg,
         -sliderCursorImg:getWidth()/2,
-        -sliderCursorImg:getHeight()/8
-    )
+        -sliderCursorImg:getHeight()/8)
     satSlider.x, satSlider.y = 530, 250
 	satSlider:setPercent(0)
 end
@@ -702,8 +680,7 @@ function updateGradients()
             local v = x / gradW
 
             return HSV.toRGB(h, s, v)
-        end
-    )
+        end)
     valGradient = love.graphics.newImage(valGradientData)
 
 
@@ -713,8 +690,7 @@ function updateGradients()
             local s = x/gradW
 
             return HSV.toRGB(h, s, v)
-        end
-    )
+        end)
     satGradient = love.graphics.newImage(satGradientData)
 
     valSlider:setImage(valGradient)
@@ -855,8 +831,7 @@ function moveSelection(direction)
 						cells[r1][c1]:setHSV(
 							h0 + i*dh,
 							s0 + i*ds,
-							v0 + i*dv
-						)
+							v0 + i*dv)
 						r1, c1 = nxt(r1, c1)
 						i = i + 1
 					end
@@ -916,8 +891,7 @@ function save()
     paletteData:mapPixel(
         function(x, y, r, g, b, a)
             return cells[y+1][x+1]:getRGB()
-        end
-    )
+        end)
     paletteData:encode("png", fileName..".png")
 end
 
