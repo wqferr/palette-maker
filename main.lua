@@ -338,10 +338,12 @@ function love.load()
                             local data = love.image.newImageData(item)
                             if data:getWidth() == data:getHeight()
                                     and data:getWidth() == gridC then
+                                palImg = love.graphics.newImage(data)
+                                palImg:setFilter("nearest")
                                 table.insert(
                                     palettes,
                                     {
-                                        img = love.graphics.newImage(data),
+                                        img = palImg,
                                         val = item:sub(1, -5)
                                     })
                             end
